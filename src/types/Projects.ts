@@ -7,4 +7,9 @@ export type Projects = {
 
 export type ServiceResponse<T> =
   | { success: true; data: T }
-  | { success: false; error: string };
+  | { success: false; error: string | Error };
+
+export type RunProjectResult = {
+  changes: number;
+  lastInsertRowId: number | bigint;
+};

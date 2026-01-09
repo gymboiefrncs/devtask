@@ -4,6 +4,7 @@ export const switchProject = (projectId: number) => {
   const newActiveProject = switchProjectService(projectId);
   if (!newActiveProject.success) {
     console.error(newActiveProject.error);
+    process.exitCode = 1;
     return;
   }
 

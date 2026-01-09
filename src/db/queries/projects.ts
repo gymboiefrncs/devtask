@@ -1,5 +1,12 @@
 import { db } from "../database.js";
-import type { Projects } from "../../types/Projects.js";
+import type { Projects, RunProjectResult } from "../../types/Projects.js";
+import type { RunResult } from "better-sqlite3";
+
+const getProject = (projectId: number): Projects | undefined => {
+  return db
+    .prepare<[number], Projects>("SELECT * FROM projects WHERE id = ? LIMIT 1")
+    .get(projectId);
+};
 
 const getActiveProject = (): boolean => {
   const activeProject = db
@@ -10,23 +17,20 @@ const getActiveProject = (): boolean => {
   return !!activeProject;
 };
 
-export const addProject = (projectName: string): Projects => {
-  const active = getActiveProject();
-
-  const initilial = active ? "inactive" : "active";
-  const result = db
-    .prepare<[string, string], Projects>(
-      "INSERT INTO projects (name, status) VALUES (?, ?) RETURNING *"
-    )
-    .get(projectName, initilial);
-
-  if (!result) throw new Error(`Failed to insert project ${projectName}`);
-
-  return result;
-};
-
 export const getAllProjects = (): Projects[] => {
   return db.prepare<[], Projects>("SELECT * FROM projects").all();
+};
+
+export const addProject = (projectName: string): RunProjectResult => {
+  const active = getActiveProject();
+  const initial = active ? "inactive" : "active";
+  const result = db
+    .prepare<[string, string], RunResult>(
+      "INSERT INTO projects (name, status) VALUES (?, ?)"
+    )
+    .run(projectName, initial);
+
+  return { changes: result.changes, lastInsertRowId: result.lastInsertRowid };
 };
 
 export const setActiveProject = (projectId: number): Projects => {
@@ -36,10 +40,13 @@ export const setActiveProject = (projectId: number): Projects => {
     "UPDATE projects SET status = ? WHERE id = ? RETURNING *"
   );
 
+  const exists = getProject(projectId);
+  if (!exists) throw new Error(`Project with id=${projectId} does not exist`);
+
   const performSwitch = db.transaction((id: number) => {
     setInactive.run();
     const result = setActive.get("active", id);
-    if (!result) throw new Error("Failed to switch projects");
+    if (!result) throw new Error(`Failed to switch projects to id=${id}`);
     return result;
   });
 
