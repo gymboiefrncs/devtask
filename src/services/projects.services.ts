@@ -13,7 +13,9 @@ export const initializeProjectService = (
   if (!projectName.trim()) {
     return { success: false, error: "Project name cannot be empty" };
   }
-  const [result, error] = handleError(() => queries.addProject(projectName));
+  const [result, error] = handleError(() =>
+    queries.addProject(projectName.trim())
+  );
   if (error)
     return {
       success: false,
