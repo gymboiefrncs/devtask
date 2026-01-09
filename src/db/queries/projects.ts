@@ -7,3 +7,7 @@ export const addProject = (projectName: string) => {
 
   return result;
 };
+
+export const getAllProjects = () => {
+  return db.prepare("SELECT * FROM projects").all();
+};

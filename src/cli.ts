@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import { initializeProject } from "./commands/projects/initialize.js";
+import { listProjects } from "./commands/projects/list.js";
 
 const program = new Command();
 
@@ -12,5 +13,10 @@ program
   .command("init <projectName>")
   .description("Initialize a project")
   .action(initializeProject);
+
+program
+  .command("projects")
+  .description("List all the projects")
+  .action(listProjects);
 
 program.parse();
