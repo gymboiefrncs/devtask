@@ -14,7 +14,7 @@ export const initializeProjectService = (
   return { success: true, data: result };
 };
 
-export const listProjectsService = () => {
+export const listProjectsService = (): ServiceResponse<Projects[]> => {
   const [result, error] = handleError(() => queries.getAllProjects());
   if (error) return { success: false, error: error.message };
 

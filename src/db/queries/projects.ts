@@ -25,6 +25,6 @@ export const addProject = (projectName: string): Projects => {
   return result;
 };
 
-export const getAllProjects = () => {
-  return db.prepare("SELECT * FROM projects").all();
+export const getAllProjects = (): Projects[] => {
+  return db.prepare<[], Projects>("SELECT * FROM projects").all();
 };

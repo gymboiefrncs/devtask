@@ -8,7 +8,7 @@ export const listProjects = () => {
     return;
   }
 
-  if (!projects.data?.length) {
+  if (!projects.data.length) {
     console.log("No projects found!");
     return;
   }
