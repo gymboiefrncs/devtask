@@ -6,7 +6,7 @@ export const initializeSchema = (db: Database) => {
   db.exec(`
       CREATE TABLE IF NOT EXISTS projects (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE,
         status TEXT CHECK(status IN ('active','inactive', 'done')),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
