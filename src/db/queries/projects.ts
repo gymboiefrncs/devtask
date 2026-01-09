@@ -8,13 +8,13 @@ const getProject = (projectId: number): Projects | undefined => {
     .get(projectId);
 };
 
-const getActiveProject = (): boolean => {
+export const getActiveProject = (): Projects | undefined => {
   const activeProject = db
-    .prepare<[], { id: number }>(
-      "SELECT id FROM projects WHERE status = 'active' LIMIT 1"
+    .prepare<[], Projects>(
+      "SELECT * FROM projects WHERE status = 'active' LIMIT 1"
     )
     .get();
-  return !!activeProject;
+  return activeProject;
 };
 
 export const getAllProjects = (): Projects[] => {

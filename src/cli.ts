@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { initializeProject } from "./commands/projects/initialize.js";
 import { listProjects } from "./commands/projects/list.js";
 import { switchProject } from "./commands/projects/switch.js";
+import { listCurrentProject } from "./commands/projects/current.js";
 
 const program = new Command();
 
@@ -24,5 +25,10 @@ program
   .command("switch <projectId>")
   .description("Switch projects")
   .action(switchProject);
+
+program
+  .command("current")
+  .description("Get current project")
+  .action(listCurrentProject);
 
 program.parse();

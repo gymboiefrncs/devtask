@@ -44,3 +44,11 @@ export const switchProjectService = (
 
   return { success: true, data: result };
 };
+
+// Service to get the current project
+export const listCurrentProjectService = () => {
+  const [result, error] = handleError(() => queries.getActiveProject());
+  if (error) return { success: false, error: error.message };
+  if (!result) return { success: false, error: "No active project found" };
+  return { success: true, data: result };
+};
