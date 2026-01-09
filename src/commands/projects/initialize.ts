@@ -7,5 +7,5 @@ export const initializeProject = (projectName: string) => {
     process.exitCode = 1;
     return;
   }
-  console.log(newProject.data);
+  console.log(`Project added: ${newProject.data.name}`);
 };

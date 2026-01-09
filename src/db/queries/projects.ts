@@ -1,9 +1,26 @@
 import { db } from "../database.js";
+import type { Projects } from "../../types/Projects.js";
 
-export const addProject = (projectName: string) => {
+const getActiveProject = (): boolean => {
+  const activeProject = db
+    .prepare<[], { id: number }>(
+      "SELECT id FROM projects WHERE status = 'active' LIMIT 1"
+    )
+    .get();
+  return !!activeProject;
+};
+
+export const addProject = (projectName: string): Projects => {
+  const active = getActiveProject();
+
+  const initilial = active ? "inactive" : "active";
   const result = db
-    .prepare("INSERT INTO projects (name) VALUES (?) RETURNING *")
-    .get(projectName);
+    .prepare<[string, string], Projects>(
+      "INSERT INTO projects (name, status) VALUES (?, ?) RETURNING *"
+    )
+    .get(projectName, initilial);
+
+  if (!result) throw new Error(`Failed to insert project ${projectName}`);
 
   return result;
 };
