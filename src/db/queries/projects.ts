@@ -28,3 +28,20 @@ export const addProject = (projectName: string): Projects => {
 export const getAllProjects = (): Projects[] => {
   return db.prepare<[], Projects>("SELECT * FROM projects").all();
 };
+
+export const setActiveProject = (projectId: number): Projects => {
+  const setInactive = db.prepare("UPDATE projects SET status = 'inactive'");
+
+  const setActive = db.prepare<[string, number], Projects>(
+    "UPDATE projects SET status = ? WHERE id = ? RETURNING *"
+  );
+
+  const performSwitch = db.transaction((id: number) => {
+    setInactive.run();
+    const result = setActive.get("active", id);
+    if (!result) throw new Error("Failed to switch projects");
+    return result;
+  });
+
+  return performSwitch(projectId);
+};

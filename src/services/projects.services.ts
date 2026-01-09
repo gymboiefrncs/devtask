@@ -20,3 +20,14 @@ export const listProjectsService = (): ServiceResponse<Projects[]> => {
 
   return { success: true, data: result };
 };
+
+export const switchProjectService = (
+  projectId: number
+): ServiceResponse<Projects> => {
+  const [result, error] = handleError(() =>
+    queries.setActiveProject(projectId)
+  );
+  if (error) return { success: false, error: error.message };
+
+  return { success: true, data: result };
+};

@@ -1,6 +1,7 @@
 import { Command } from "commander";
 import { initializeProject } from "./commands/projects/initialize.js";
 import { listProjects } from "./commands/projects/list.js";
+import { switchProject } from "./commands/projects/switch.js";
 
 const program = new Command();
 
@@ -18,5 +19,10 @@ program
   .command("projects")
   .description("List all the projects")
   .action(listProjects);
+
+program
+  .command("switch <projectId>")
+  .description("Switch projects")
+  .action(switchProject);
 
 program.parse();
