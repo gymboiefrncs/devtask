@@ -1,6 +1,5 @@
 import { db } from "../database.js";
-import type { Projects, RunProjectResult } from "../../types/Projects.js";
-import type { RunResult } from "better-sqlite3";
+import type { Projects } from "../../types/Projects.js";
 
 export const getProject = (projectId: number): Projects | undefined => {
   return db
@@ -21,16 +20,16 @@ export const getAllProjects = (): Projects[] => {
   return db.prepare<[], Projects>("SELECT * FROM projects").all();
 };
 
-export const addProject = (projectName: string): RunProjectResult => {
+export const addProject = (projectName: string): Projects => {
   const active = getActiveProject();
   const initial = active ? "inactive" : "active";
   const result = db
-    .prepare<[string, string], RunResult>(
-      "INSERT INTO projects (name, status) VALUES (?, ?)"
+    .prepare<[string, string], Projects>(
+      "INSERT INTO projects (name, status) VALUES (?, ?) RETURNING *"
     )
-    .run(projectName, initial);
+    .get(projectName, initial);
 
-  return { changes: result.changes, lastInsertRowId: result.lastInsertRowid };
+  return result!;
 };
 
 export const setActiveProject = (projectId: number): Projects => {
@@ -49,4 +48,8 @@ export const setActiveProject = (projectId: number): Projects => {
   });
 
   return performSwitch(projectId)!;
+};
+
+export const addThenSwitch = (projectId: number): Projects => {
+  return setActiveProject(projectId);
 };

@@ -1,6 +1,6 @@
 import { listCurrentProjectService } from "../../services/projects.services.js";
 
-export const listCurrentProject = () => {
+export const listCurrentProject = (): void => {
   const currentProject = listCurrentProjectService();
   if (!currentProject.success) {
     console.error(currentProject.error);

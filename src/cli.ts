@@ -13,6 +13,7 @@ program
 
 program
   .command("init <projectName>")
+  .option("-s, --switch", "Switch to newly initialized project")
   .description("Initialize a project")
   .action(initializeProject);
 

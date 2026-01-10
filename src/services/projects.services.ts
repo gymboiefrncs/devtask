@@ -1,15 +1,11 @@
 import * as queries from "../db/queries/projects.js";
 import { handleError } from "../utils/handleError.js";
-import type {
-  Projects,
-  RunProjectResult,
-  ServiceResponse,
-} from "../types/Projects.js";
+import type { Projects, ServiceResponse } from "../types/Projects.js";
 
 // Serive to initialize new project
 export const initializeProjectService = (
   projectName: string
-): ServiceResponse<RunProjectResult, Error> => {
+): ServiceResponse<Projects, Error> => {
   if (!projectName.trim()) {
     return { success: false, error: new Error("Project name cannot be empty") };
   }
@@ -58,6 +54,17 @@ export const listCurrentProjectService = (): ServiceResponse<
     return { success: false, error: new Error(res.error.message) };
   if (!res.data)
     return { success: false, error: new Error("No active project found") };
+
+  return { success: true, data: res.data };
+};
+
+//service to handle add then switch command
+export const addThenSwitchService = (
+  projectId: number
+): ServiceResponse<Projects, Error> => {
+  const res = handleError(() => queries.addThenSwitch(projectId));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
 
   return { success: true, data: res.data };
 };
