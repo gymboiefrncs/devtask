@@ -5,9 +5,9 @@ export type Projects = {
   created_at: string;
 };
 
-export type ServiceResponse<T> =
+export type ServiceResponse<T, E = Error> =
   | { success: true; data: T }
-  | { success: false; error: string | Error };
+  | { success: false; error: E };
 
 export type RunProjectResult = {
   changes: number;

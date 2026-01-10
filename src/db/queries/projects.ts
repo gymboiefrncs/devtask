@@ -2,7 +2,7 @@ import { db } from "../database.js";
 import type { Projects, RunProjectResult } from "../../types/Projects.js";
 import type { RunResult } from "better-sqlite3";
 
-const getProject = (projectId: number): Projects | undefined => {
+export const getProject = (projectId: number): Projects | undefined => {
   return db
     .prepare<[number], Projects>("SELECT * FROM projects WHERE id = ? LIMIT 1")
     .get(projectId);
@@ -34,21 +34,19 @@ export const addProject = (projectName: string): RunProjectResult => {
 };
 
 export const setActiveProject = (projectId: number): Projects => {
-  const setInactive = db.prepare("UPDATE projects SET status = 'inactive'");
+  const setInactive = db.prepare(
+    "UPDATE projects SET status = 'inactive' WHERE status = 'active'"
+  );
 
   const setActive = db.prepare<[string, number], Projects>(
     "UPDATE projects SET status = ? WHERE id = ? RETURNING *"
   );
 
-  const exists = getProject(projectId);
-  if (!exists) throw new Error(`Project with id=${projectId} does not exist`);
-
   const performSwitch = db.transaction((id: number) => {
     setInactive.run();
     const result = setActive.get("active", id);
-    if (!result) throw new Error(`Failed to switch projects to id=${id}`);
     return result;
   });
 
-  return performSwitch(projectId);
+  return performSwitch(projectId)!;
 };

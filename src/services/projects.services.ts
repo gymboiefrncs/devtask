@@ -9,48 +9,55 @@ import type {
 // Serive to initialize new project
 export const initializeProjectService = (
   projectName: string
-): ServiceResponse<RunProjectResult> => {
+): ServiceResponse<RunProjectResult, Error> => {
   if (!projectName.trim()) {
-    return { success: false, error: "Project name cannot be empty" };
+    return { success: false, error: new Error("Project name cannot be empty") };
   }
-  const [result, error] = handleError(() =>
-    queries.addProject(projectName.trim())
-  );
-  if (error)
-    return {
-      success: false,
-      error: error.message.includes("UNIQUE")
-        ? "Project already exists"
-        : error.message,
-    };
+  const res = handleError(() => queries.addProject(projectName.trim()));
+  if (!res.success) {
+    const message = res.error.message.includes("UNIQUE")
+      ? "Project already exists"
+      : res.error.message;
+    return { success: false, error: new Error(message) };
+  }
 
-  return { success: true, data: result };
+  return res;
 };
 
 // Service to list all projects
-export const listProjectsService = (): ServiceResponse<Projects[]> => {
-  const [result, error] = handleError(() => queries.getAllProjects());
-  if (error) return { success: false, error: error.message };
+export const listProjectsService = (): ServiceResponse<Projects[], Error> => {
+  const res = handleError(() => queries.getAllProjects());
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
 
-  return { success: true, data: result };
+  return res;
 };
 
 // Service to switch active project
 export const switchProjectService = (
   projectId: number
-): ServiceResponse<Projects> => {
-  const [result, error] = handleError(() =>
-    queries.setActiveProject(projectId)
-  );
-  if (error) return { success: false, error: error.message };
+): ServiceResponse<Projects, Error> => {
+  const exist = handleError(() => queries.getProject(projectId));
+  if (!exist.success || !exist.data)
+    return { success: false, error: new Error("Project not found") };
 
-  return { success: true, data: result };
+  const res = handleError(() => queries.setActiveProject(projectId));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+
+  return res;
 };
 
 // Service to get the current project
-export const listCurrentProjectService = () => {
-  const [result, error] = handleError(() => queries.getActiveProject());
-  if (error) return { success: false, error: error.message };
-  if (!result) return { success: false, error: "No active project found" };
-  return { success: true, data: result };
+export const listCurrentProjectService = (): ServiceResponse<
+  Projects,
+  Error
+> => {
+  const res = handleError(() => queries.getActiveProject());
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+  if (!res.data)
+    return { success: false, error: new Error("No active project found") };
+
+  return { success: true, data: res.data };
 };

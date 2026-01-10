@@ -1,11 +1,12 @@
-type Result<T> = [T, null] | [null, Error];
+import type { ServiceResponse } from "../types/Projects.js";
 
-export const handleError = <T>(cb: () => T): Result<T> => {
+export const handleError = <T>(cb: () => T): ServiceResponse<T> => {
   try {
-    const result = cb();
-    return [result, null];
-  } catch (error) {
-    const err = error instanceof Error ? error : new Error(String(error));
-    return [null, err];
+    return { success: true, data: cb() };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err : new Error(String(err)),
+    };
   }
 };
