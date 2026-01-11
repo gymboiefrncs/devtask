@@ -8,5 +8,5 @@ export const switchProject = (projectId: string): void => {
     return;
   }
 
-  console.log("Project switched");
+  console.log(`Project switched to: ${newActiveProject.data.name}`);
 };

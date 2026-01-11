@@ -1,4 +1,6 @@
 import { listProjectsService } from "../../services/projects.services.js";
+import chalk from "chalk";
+import { formatDate } from "../../utils/formatDate.js";
 
 export const listProjects = (): void => {
   const projects = listProjectsService();
@@ -13,5 +15,16 @@ export const listProjects = (): void => {
     return;
   }
 
-  console.log(projects.data);
+  projects.data.forEach((project) => {
+    console.log(
+      `${chalk.yellow(`ID: ${project.id}`)} - ${chalk.blue(project.name)}
+  Status: ${
+    project.status === "active"
+      ? chalk.green(project.status)
+      : chalk.red(project.status)
+  }
+  Created at: ${formatDate(project.created_at)}
+  `
+    );
+  });
 };
