@@ -35,13 +35,18 @@ export const listProjectsService = (): ServiceResponse<Projects[], Error> => {
 
 // Service to switch active project
 export const switchProjectService = (
-  projectId: number
+  projectId: string
 ): ServiceResponse<Projects, Error> => {
-  const exist = handleError(() => queries.getProject(projectId));
+  //convert to number
+  const id = Number(projectId);
+  if (isNaN(id) || id <= 0 || !id)
+    return { success: false, error: new Error("Invalid project id") };
+
+  const exist = handleError(() => queries.getProject(id));
   if (!exist.success || !exist.data)
     return { success: false, error: new Error("Project not found") };
 
-  const res = handleError(() => queries.setActiveProject(projectId));
+  const res = handleError(() => queries.setActiveProject(id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 

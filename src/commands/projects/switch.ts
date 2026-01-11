@@ -1,6 +1,6 @@
 import { switchProjectService } from "../../services/projects.services.js";
 
-export const switchProject = (projectId: number): void => {
+export const switchProject = (projectId: string): void => {
   const newActiveProject = switchProjectService(projectId);
   if (!newActiveProject.success) {
     console.error(newActiveProject.error.message);
