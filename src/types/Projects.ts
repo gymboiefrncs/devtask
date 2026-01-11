@@ -8,3 +8,8 @@ export type Projects = {
 export type ServiceResponse<T, E = Error> =
   | { success: true; data: T }
   | { success: false; error: E };
+
+export type ProjectRunResult = {
+  changes: number;
+  lastInsertRowid: number | bigint;
+};

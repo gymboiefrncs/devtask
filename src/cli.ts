@@ -3,6 +3,7 @@ import { initializeProject } from "./commands/projects/initialize.js";
 import { listProjects } from "./commands/projects/list.js";
 import { switchProject } from "./commands/projects/switch.js";
 import { listCurrentProject } from "./commands/projects/current.js";
+import { removeProject } from "./commands/projects/remove.js";
 
 const program = new Command();
 
@@ -31,5 +32,10 @@ program
   .command("current")
   .description("Get current project")
   .action(listCurrentProject);
+
+program
+  .command("remove <projectId>")
+  .description("Deletes a project")
+  .action(removeProject);
 
 program.parse();

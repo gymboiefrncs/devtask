@@ -53,3 +53,7 @@ export const setActiveProject = (projectId: number): Projects => {
 export const addThenSwitch = (projectId: number): Projects => {
   return setActiveProject(projectId);
 };
+
+export const deleteProject = (projectId: number) => {
+  return db.prepare("DELETE FROM projects WHERE id = ?").run(projectId);
+};

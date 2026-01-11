@@ -1,6 +1,10 @@
 import * as queries from "../db/queries/projects.js";
 import { handleError } from "../utils/handleError.js";
-import type { Projects, ServiceResponse } from "../types/Projects.js";
+import type {
+  ProjectRunResult,
+  Projects,
+  ServiceResponse,
+} from "../types/Projects.js";
 
 // Serive to initialize new project
 export const initializeProjectService = (
@@ -67,4 +71,38 @@ export const addThenSwitchService = (
     return { success: false, error: new Error(res.error.message) };
 
   return { success: true, data: res.data };
+};
+
+// Service to remove project
+export const removeProjectService = (
+  projectId: string
+): ServiceResponse<ProjectRunResult, Error> => {
+  // convert projectId to number
+  const id = Number(projectId);
+  if (isNaN(id) || id <= 0 || !id) {
+    return { success: false, error: new Error("Invalid project id") };
+  }
+
+  // check if the provided project is active
+  // refuse to delete if the provided project is active
+  const isActive = handleError(() => queries.getActiveProject());
+  console.log(isActive);
+  if (!isActive.success)
+    return {
+      success: false,
+      error: new Error("Command failed. Please try again"),
+    };
+  if (isActive.data?.id === id)
+    return {
+      success: false,
+      error: new Error("Cannot delete this active project"),
+    };
+
+  const res = handleError(() => queries.deleteProject(id));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+  if (!res.data.changes)
+    return { success: false, error: new Error("Project not found") };
+
+  return res;
 };
