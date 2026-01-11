@@ -5,15 +5,18 @@ import type {
   Projects,
   ServiceResponse,
 } from "../types/Projects.js";
+import { validateProjectName } from "../utils/validateProjectName.js";
+import { ensureValidId } from "../utils/ensureValidId.js";
 
 // Serive to initialize new project
 export const initializeProjectService = (
   projectName: string
 ): ServiceResponse<Projects, Error> => {
-  if (!projectName.trim()) {
-    return { success: false, error: new Error("Project name cannot be empty") };
-  }
-  const res = handleError(() => queries.addProject(projectName.trim()));
+  const name = projectName.trim();
+  const error = validateProjectName(name);
+  if (error) return { success: false, error };
+
+  const res = handleError(() => queries.addProject(name));
   if (!res.success) {
     const message = res.error.message.includes("UNIQUE")
       ? "Project already exists"
@@ -37,16 +40,15 @@ export const listProjectsService = (): ServiceResponse<Projects[], Error> => {
 export const switchProjectService = (
   projectId: string
 ): ServiceResponse<Projects, Error> => {
-  //convert to number
-  const id = Number(projectId);
-  if (isNaN(id) || id <= 0 || !id)
-    return { success: false, error: new Error("Invalid project id") };
+  // ensure id is valid
+  const idRes = ensureValidId(projectId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
 
-  const exist = handleError(() => queries.getProject(id));
+  const exist = handleError(() => queries.getProject(idRes));
   if (!exist.success || !exist.data)
     return { success: false, error: new Error("Project not found") };
 
-  const res = handleError(() => queries.setActiveProject(id));
+  const res = handleError(() => queries.setActiveProject(idRes));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 
@@ -82,28 +84,25 @@ export const addThenSwitchService = (
 export const removeProjectService = (
   projectId: string
 ): ServiceResponse<ProjectRunResult, Error> => {
-  // convert projectId to number
-  const id = Number(projectId);
-  if (isNaN(id) || id <= 0 || !id) {
-    return { success: false, error: new Error("Invalid project id") };
-  }
+  // ensure id is valid
+  const idRes = ensureValidId(projectId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
 
   // check if the provided project is active
   // refuse to delete if the provided project is active
   const isActive = handleError(() => queries.getActiveProject());
-  console.log(isActive);
   if (!isActive.success)
     return {
       success: false,
       error: new Error("Command failed. Please try again"),
     };
-  if (isActive.data?.id === id)
+  if (isActive.data?.id === idRes)
     return {
       success: false,
       error: new Error("Cannot delete this active project"),
     };
 
-  const res = handleError(() => queries.deleteProject(id));
+  const res = handleError(() => queries.deleteProject(idRes));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
   if (!res.data.changes)
