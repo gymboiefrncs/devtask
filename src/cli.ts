@@ -4,9 +4,11 @@ import { listProjects } from "./commands/projects/list.js";
 import { switchProject } from "./commands/projects/switch.js";
 import { listCurrentProject } from "./commands/projects/current.js";
 import { removeProject } from "./commands/projects/remove.js";
+import { addFeature } from "./commands/features/add.js";
 
 const program = new Command();
 
+// projects commands
 program
   .name("devtask")
   .description("A CLI task management tool for developers that organizes work")
@@ -37,5 +39,13 @@ program
   .command("remove <projectId>")
   .description("Deletes a project")
   .action(removeProject);
+
+// feature commands
+const feat = program.command("feat").description("Feature commands");
+
+feat
+  .command("add <description>")
+  .description("Add a feature")
+  .action(addFeature);
 
 program.parse();
