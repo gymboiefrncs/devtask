@@ -1,6 +1,6 @@
-import type { ServiceResponse } from "../types/Projects.js";
+import type { Result } from "../types/Projects.js";
 
-export const handleError = <T>(cb: () => T): ServiceResponse<T> => {
+export const handleError = <T>(cb: () => T): Result<T> => {
   try {
     return { success: true, data: cb() };
   } catch (err) {

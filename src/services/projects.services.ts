@@ -1,17 +1,13 @@
 import * as queries from "../db/queries/projects.js";
 import { handleError } from "../utils/handleError.js";
-import type {
-  ProjectRunResult,
-  Projects,
-  ServiceResponse,
-} from "../types/Projects.js";
+import type { ProjectRunResult, Projects, Result } from "../types/Projects.js";
 import { validateProjectName } from "../utils/validateProjectName.js";
 import { ensureValidId } from "../utils/ensureValidId.js";
 
 // Serive to initialize new project
 export const initializeProjectService = (
   projectName: string
-): ServiceResponse<Projects, Error> => {
+): Result<Projects, Error> => {
   const name = projectName.trim();
   const error = validateProjectName(name);
   if (error) return { success: false, error };
@@ -28,7 +24,7 @@ export const initializeProjectService = (
 };
 
 // Service to list all projects
-export const listProjectsService = (): ServiceResponse<Projects[], Error> => {
+export const listProjectsService = (): Result<Projects[], Error> => {
   const res = handleError(() => queries.getAllProjects());
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
@@ -39,7 +35,7 @@ export const listProjectsService = (): ServiceResponse<Projects[], Error> => {
 // Service to switch active project
 export const switchProjectService = (
   projectId: string | number
-): ServiceResponse<Projects, Error> => {
+): Result<Projects, Error> => {
   // ensure id is valid
   const idRes = ensureValidId(projectId);
   if (idRes instanceof Error) return { success: false, error: idRes };
@@ -56,10 +52,7 @@ export const switchProjectService = (
 };
 
 // Service to get the current project
-export const listCurrentProjectService = (): ServiceResponse<
-  Projects,
-  Error
-> => {
+export const listCurrentProjectService = (): Result<Projects, Error> => {
   const res = handleError(() => queries.getActiveProject());
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
@@ -72,7 +65,7 @@ export const listCurrentProjectService = (): ServiceResponse<
 // Service to remove project
 export const removeProjectService = (
   projectId: string
-): ServiceResponse<ProjectRunResult, Error> => {
+): Result<ProjectRunResult, Error> => {
   // ensure id is valid
   const idRes = ensureValidId(projectId);
   if (idRes instanceof Error) return { success: false, error: idRes };
