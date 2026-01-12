@@ -38,7 +38,7 @@ export const listProjectsService = (): ServiceResponse<Projects[], Error> => {
 
 // Service to switch active project
 export const switchProjectService = (
-  projectId: string
+  projectId: string | number
 ): ServiceResponse<Projects, Error> => {
   // ensure id is valid
   const idRes = ensureValidId(projectId);
@@ -65,17 +65,6 @@ export const listCurrentProjectService = (): ServiceResponse<
     return { success: false, error: new Error(res.error.message) };
   if (!res.data)
     return { success: false, error: new Error("No active project found") };
-
-  return { success: true, data: res.data };
-};
-
-//service to handle add then switch command
-export const addThenSwitchService = (
-  projectId: number
-): ServiceResponse<Projects, Error> => {
-  const res = handleError(() => queries.addThenSwitch(projectId));
-  if (!res.success)
-    return { success: false, error: new Error(res.error.message) };
 
   return { success: true, data: res.data };
 };

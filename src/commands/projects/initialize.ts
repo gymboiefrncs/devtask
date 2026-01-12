@@ -1,6 +1,6 @@
 import {
   initializeProjectService,
-  addThenSwitchService,
+  switchProjectService,
 } from "../../services/projects.services.js";
 
 export const initializeProject = (
@@ -15,7 +15,7 @@ export const initializeProject = (
   }
 
   if (options.s || options.switch) {
-    const newActiverProject = addThenSwitchService(newProject.data.id);
+    const newActiverProject = switchProjectService(newProject.data.id);
     console.log(`Switched to newly created project: ${projectName}`);
 
     if (!newActiverProject.success) {
