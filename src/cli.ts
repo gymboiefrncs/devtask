@@ -5,6 +5,7 @@ import { switchProject } from "./commands/projects/switch.js";
 import { listCurrentProject } from "./commands/projects/current.js";
 import { removeProject } from "./commands/projects/remove.js";
 import { addFeature } from "./commands/features/add.js";
+import { listFeature } from "./commands/features/list.js";
 
 const program = new Command();
 
@@ -47,5 +48,12 @@ feat
   .command("add <description>")
   .description("Add a feature")
   .action(addFeature);
+
+feat
+  .command("list")
+  .description("List in-progress feature of the active project")
+  .option("-a, --all", "List all feature of the active project")
+  .option("-t, --todo", "List todo features of the active project")
+  .action(listFeature);
 
 program.parse();
