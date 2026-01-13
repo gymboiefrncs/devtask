@@ -56,9 +56,9 @@ export const listFeature = (options: { all?: boolean; todo?: boolean }) => {
   Time Spent: ${feature.time_spent}
   Finished at: ${formatDate(feature.finished_at)}
 
-  ${"=".repeat(50)}
-
   Notes: ${feature.notes ?? "No notes"}
+
+  ${"=".repeat(50)}  
   `
     );
   });
