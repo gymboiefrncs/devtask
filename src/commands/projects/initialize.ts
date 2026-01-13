@@ -5,7 +5,7 @@ import {
 
 export const initializeProject = (
   projectName: string,
-  options: { s: string; switch: string }
+  options: { switch: boolean }
 ): void => {
   const newProject = initializeProjectService(projectName);
   if (!newProject.success) {
@@ -14,7 +14,7 @@ export const initializeProject = (
     return;
   }
 
-  if (options.s || options.switch) {
+  if (options.switch) {
     const newActiverProject = switchProjectService(newProject.data.id);
     console.log(`Switched to newly created project: ${projectName}`);
 

@@ -3,12 +3,7 @@ import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
 import type { Feature } from "../../types/Features.js";
 
-export const listFeature = (options: {
-  a: string;
-  all: string;
-  t: string;
-  todo: string;
-}) => {
+export const listFeature = (options: { all?: boolean; todo?: boolean }) => {
   const features = listAllFeaturesService();
   if (!features.success) {
     console.error(features.error.message);
@@ -24,10 +19,10 @@ export const listFeature = (options: {
   let dataToDisplay: Feature[];
   let label: string;
 
-  if (options.a || options.all) {
+  if (options.all) {
     dataToDisplay = features.data;
-    label = "No features found for this project!";
-  } else if (options.t || options.todo) {
+    label = "";
+  } else if (options.todo) {
     dataToDisplay = features.data.filter(
       (feature) => feature.status === "todo"
     );
