@@ -45,9 +45,12 @@ program
 const feat = program.command("feat").description("Feature commands");
 
 feat
-  .command("add <description>")
+  .command("add [description]")
+  .option("-m, --many", "Add multiple features")
   .description("Add a feature")
-  .action(addFeature);
+  .action(async (description: string, options: { many: boolean }) => {
+    await addFeature(description, options);
+  });
 
 feat
   .command("list")
@@ -56,4 +59,4 @@ feat
   .option("-t, --todo", "List todo features of the active project")
   .action(listFeature);
 
-program.parse();
+program.parseAsync();
