@@ -10,6 +10,7 @@ import {
   setMultipleFocus,
   getAllfocusedFeatures,
   setUnfocus,
+  setStatusDone,
 } from "../db/queries/features.js";
 import type { Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
@@ -144,5 +145,17 @@ export const unfocusMultipleFeaureService = (
   const res = handleError(() => setUnfocus(feats));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
+  return res;
+};
+
+export const markFeatureAsDoneService = (
+  featId: string
+): Result<FeatureRunResult> => {
+  const idRes = ensureValidId(featId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
+
+  const res = handleError(() => setStatusDone(idRes));
+  if (!res.success) return { success: false, error: res.error };
+
   return res;
 };
