@@ -49,7 +49,7 @@ export const getFeature = (featId: number): Feature | undefined => {
 export const setFocus = (featId: number): FeatureRunResult => {
   const result = db
     .prepare<[number], FeatureRunResult>(
-      "UPDATE features SET is_focused = 1 WHERE id = ?"
+      "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?"
     )
     .run(featId);
 
@@ -78,7 +78,9 @@ export const setMultipleFocus = (featId: number[]): FeatureRunResult => {
     let lastInsertRowid: bigint | number = 0;
     for (const id of ids) {
       const result = db
-        .prepare("UPDATE features SET is_focused = 1 WHERE id = ?")
+        .prepare(
+          "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?"
+        )
         .run(id);
       changes += result.changes;
       lastInsertRowid = result.lastInsertRowid;
@@ -94,7 +96,9 @@ export const setUnfocus = (featId: number[]): FeatureRunResult => {
     let lastInsertRowid: bigint | number = 0;
     for (const id of ids) {
       const result = db
-        .prepare("UPDATE features SET is_focused = 0 WHERE id = ?")
+        .prepare(
+          "UPDATE features SET is_focused = 0, status = 'todo' WHERE id = ?"
+        )
         .run(id);
       changes += result.changes;
       lastInsertRowid = result.lastInsertRowid;

@@ -53,8 +53,6 @@ export const listFeature = (options: { all?: boolean; todo?: boolean }) => {
   Status: ${colorFn(feature.status)}
   Created at: ${formatDate(feature.created_at)}
   Focus: ${feature.is_focused === 1 ? chalk.green("Yes") : "No"}
-  Time Spent: ${feature.time_spent}
-  Finished at: ${formatDate(feature.finished_at)}
 
   Notes: ${feature.notes ?? "No notes"}
 
