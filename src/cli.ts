@@ -64,6 +64,8 @@ feat
   .command("focus [featId]")
   .description("Focus on a feature")
   .option("-m, --many", "Focus multiple feature")
-  .action(focusAFeature);
+  .action(async (featId: string, options: { many: boolean }) => {
+    await focusAFeature(featId, options);
+  });
 
 program.parseAsync();

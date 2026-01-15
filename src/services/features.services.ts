@@ -3,6 +3,7 @@ import { getActiveProject } from "../db/queries/projects.js";
 import {
   batchInsert,
   getAllFeature,
+  getAllUnfocusedFeatures,
   getFeature,
   insertFeature,
   setFocus,
@@ -88,6 +89,22 @@ export const focusAFeatureService = (
     return { success: false, error: new Error("No feature found!") };
 
   const res = handleError(() => setFocus(idRes));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+
+  return res;
+};
+
+export const unfocusedFeatures = (): Result<Feature[]> => {
+  const activeProject = handleError(() => getActiveProject());
+  if (!activeProject.success)
+    return { success: false, error: new Error(activeProject.error.message) };
+
+  const projectData = activeProject.data;
+  if (!projectData)
+    return { success: false, error: new Error("No active project found") };
+
+  const res = handleError(() => getAllUnfocusedFeatures(projectData.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 

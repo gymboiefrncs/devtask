@@ -15,6 +15,7 @@ export const addFeatures = async () => {
 };
 
 export const promptfocusMultipleFeature = async (feats: Feature[]) => {
+  if (!feats.length) return;
   const answer = await checkbox({
     message: "Select features to focus on",
     choices: feats.map((feat) => ({ name: feat.description, value: feat.id })),

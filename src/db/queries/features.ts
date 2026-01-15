@@ -56,6 +56,14 @@ export const setFocus = (featId: number): FeatureRunResult => {
   return result;
 };
 
+export const getAllUnfocusedFeatures = (projectId: number): Feature[] => {
+  return db
+    .prepare<[number], Feature>(
+      "SELECT * from features WHERE project_id = ? and  is_focused = 0"
+    )
+    .all(projectId);
+};
+
 export const setMultipleFocus = (featId: number[]): FeatureRunResult => {
   const performAction = db.transaction((ids: number[]) => {
     let changes = 0;

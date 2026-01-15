@@ -1,16 +1,16 @@
 import {
   focusAFeatureService,
   focusMultipleFeaureService,
-  listAllFeaturesService,
+  unfocusedFeatures,
 } from "../../services/features.services.js";
 import { promptfocusMultipleFeature } from "../../utils/prompts.js";
 
 export const focusAFeature = async (
   featId: string,
-  options: { many: boolean }
+  options: { many?: boolean }
 ) => {
   if (options.many) {
-    const features = listAllFeaturesService();
+    const features = unfocusedFeatures();
     if (!features.success) {
       console.error(features.error.message);
       process.exitCode = 1;
@@ -18,6 +18,11 @@ export const focusAFeature = async (
     }
     const { data } = features;
     const feats = await promptfocusMultipleFeature(data);
+    if (!feats) {
+      console.log("No feature left to focus");
+      return;
+    }
+
     const res = focusMultipleFeaureService(feats);
     if (!res.success) {
       console.error(res.error.message);
