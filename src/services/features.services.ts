@@ -11,6 +11,7 @@ import {
   getAllfocusedFeatures,
   setUnfocus,
   setStatusDone,
+  deleteFeat,
 } from "../db/queries/features.js";
 import type { Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
@@ -157,5 +158,14 @@ export const markFeatureAsDoneService = (
   const res = handleError(() => setStatusDone(idRes));
   if (!res.success) return { success: false, error: res.error };
 
+  return res;
+};
+
+export const removeFeatureService = (
+  feats: number[]
+): Result<FeatureRunResult> => {
+  const res = handleError(() => deleteFeat(feats));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
   return res;
 };

@@ -31,3 +31,12 @@ export const promptunfocusMultipleFeature = async (feats: Feature[]) => {
   });
   return answer;
 };
+
+export const promptDeleteFeature = async (feats: Feature[]) => {
+  if (!feats.length) return;
+  const answer = await checkbox({
+    message: "Select features to be removed",
+    choices: feats.map((feat) => ({ name: feat.description, value: feat.id })),
+  });
+  return answer;
+};

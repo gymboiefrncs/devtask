@@ -113,3 +113,17 @@ export const setStatusDone = (featId: number): FeatureRunResult => {
     .prepare("UPDATE features SET is_focused = 0, status = 'done' WHERE id = ?")
     .run(featId);
 };
+
+export const deleteFeat = (featId: number[]): FeatureRunResult => {
+  const performAction = db.transaction((ids: number[]) => {
+    let changes = 0;
+    let lastInsertRowid: bigint | number = 0;
+    for (const id of ids) {
+      const result = db.prepare("DELETE FROM features WHERE id = ?").run(id);
+      changes += result.changes;
+      lastInsertRowid = result.lastInsertRowid;
+    }
+    return { changes, lastInsertRowid };
+  });
+  return performAction(featId);
+};

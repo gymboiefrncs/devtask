@@ -8,6 +8,7 @@ import { addFeature } from "./commands/features/add.js";
 import { listFeature } from "./commands/features/list.js";
 import { focusAFeature, unfocusFeatures } from "./commands/features/focus.js";
 import { markAsDone } from "./commands/features/done.js";
+import { removeFeature } from "./commands/features/remove.js";
 
 const program = new Command();
 
@@ -78,5 +79,10 @@ feat
   .command("done <featId>")
   .description("Mark feature as done")
   .action(markAsDone);
+
+feat
+  .command("remove")
+  .description("Delete a feature")
+  .action(async () => await removeFeature());
 
 program.parseAsync();
