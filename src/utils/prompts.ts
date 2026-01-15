@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import { input } from "@inquirer/prompts";
-
+import { checkbox, input } from "@inquirer/prompts";
+import type { Feature } from "../types/Features.js";
 export const addFeatures = async () => {
   const features: string[] = [];
   console.log(chalk.blue("Enter feature... (empty line to exit)"));
@@ -12,4 +12,12 @@ export const addFeatures = async () => {
     features.push(answer);
   }
   return features;
+};
+
+export const promptfocusMultipleFeature = async (feats: Feature[]) => {
+  const answer = await checkbox({
+    message: "Select features to focus on",
+    choices: feats.map((feat) => ({ name: feat.description, value: feat.id })),
+  });
+  return answer;
 };

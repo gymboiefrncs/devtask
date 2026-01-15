@@ -39,3 +39,35 @@ export const batchInsert = (
   });
   return performInsert(description, projectId);
 };
+
+export const getFeature = (featId: number): Feature | undefined => {
+  return db
+    .prepare<[number], Feature>("SELECT * from features WHERE id = ?")
+    .get(featId);
+};
+
+export const setFocus = (featId: number): FeatureRunResult => {
+  const result = db
+    .prepare<[number], FeatureRunResult>(
+      "UPDATE features SET is_focused = 1 WHERE id = ?"
+    )
+    .run(featId);
+
+  return result;
+};
+
+export const setMultipleFocus = (featId: number[]): FeatureRunResult => {
+  const performAction = db.transaction((ids: number[]) => {
+    let changes = 0;
+    let lastInsertRowid: bigint | number = 0;
+    for (const id of ids) {
+      const result = db
+        .prepare("UPDATE features SET is_focused = 1 WHERE id = ?")
+        .run(id);
+      changes += result.changes;
+      lastInsertRowid = result.lastInsertRowid;
+    }
+    return { changes, lastInsertRowid };
+  });
+  return performAction(featId);
+};

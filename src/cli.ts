@@ -6,6 +6,7 @@ import { listCurrentProject } from "./commands/projects/current.js";
 import { removeProject } from "./commands/projects/remove.js";
 import { addFeature } from "./commands/features/add.js";
 import { listFeature } from "./commands/features/list.js";
+import { focusAFeature } from "./commands/features/focus.js";
 
 const program = new Command();
 
@@ -58,5 +59,11 @@ feat
   .option("-a, --all", "List all feature of the active project")
   .option("-t, --todo", "List todo features of the active project")
   .action(listFeature);
+
+feat
+  .command("focus [featId]")
+  .description("Focus on a feature")
+  .option("-m, --many", "Focus multiple feature")
+  .action(focusAFeature);
 
 program.parseAsync();

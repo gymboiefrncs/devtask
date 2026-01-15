@@ -3,11 +3,15 @@ import { getActiveProject } from "../db/queries/projects.js";
 import {
   batchInsert,
   getAllFeature,
+  getFeature,
   insertFeature,
+  setFocus,
+  setMultipleFocus,
 } from "../db/queries/features.js";
 import type { Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
 import { validateFeatureDescription } from "../utils/validateFeatDescription.js";
+import { ensureValidId } from "../utils/ensureValidId.js";
 
 export const listAllFeaturesService = (): Result<Feature[]> => {
   const activeProject = handleError(() => getActiveProject());
@@ -65,6 +69,35 @@ export const addMultipleFeatureService = (
     return { success: false, error: new Error("No active project found") };
 
   const res = handleError(() => batchInsert(description, projectData.id));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+  return res;
+};
+
+export const focusAFeatureService = (
+  featId: string
+): Result<FeatureRunResult> => {
+  const idRes = ensureValidId(featId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
+
+  const feature = handleError(() => getFeature(idRes));
+  if (!feature.success)
+    return { success: false, error: new Error(feature.error.message) };
+  const featureData = feature.data;
+  if (!featureData)
+    return { success: false, error: new Error("No feature found!") };
+
+  const res = handleError(() => setFocus(idRes));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+
+  return res;
+};
+
+export const focusMultipleFeaureService = (
+  feats: number[]
+): Result<FeatureRunResult> => {
+  const res = handleError(() => setMultipleFocus(feats));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
   return res;
