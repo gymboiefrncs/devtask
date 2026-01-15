@@ -64,6 +64,14 @@ export const getAllUnfocusedFeatures = (projectId: number): Feature[] => {
     .all(projectId);
 };
 
+export const getAllfocusedFeatures = (projectId: number): Feature[] => {
+  return db
+    .prepare<[number], Feature>(
+      "SELECT * from features WHERE project_id = ? and  is_focused = 1"
+    )
+    .all(projectId);
+};
+
 export const setMultipleFocus = (featId: number[]): FeatureRunResult => {
   const performAction = db.transaction((ids: number[]) => {
     let changes = 0;
@@ -71,6 +79,22 @@ export const setMultipleFocus = (featId: number[]): FeatureRunResult => {
     for (const id of ids) {
       const result = db
         .prepare("UPDATE features SET is_focused = 1 WHERE id = ?")
+        .run(id);
+      changes += result.changes;
+      lastInsertRowid = result.lastInsertRowid;
+    }
+    return { changes, lastInsertRowid };
+  });
+  return performAction(featId);
+};
+
+export const setUnfocus = (featId: number[]): FeatureRunResult => {
+  const performAction = db.transaction((ids: number[]) => {
+    let changes = 0;
+    let lastInsertRowid: bigint | number = 0;
+    for (const id of ids) {
+      const result = db
+        .prepare("UPDATE features SET is_focused = 0 WHERE id = ?")
         .run(id);
       changes += result.changes;
       lastInsertRowid = result.lastInsertRowid;

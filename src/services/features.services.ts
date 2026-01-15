@@ -8,6 +8,8 @@ import {
   insertFeature,
   setFocus,
   setMultipleFocus,
+  getAllfocusedFeatures,
+  setUnfocus,
 } from "../db/queries/features.js";
 import type { Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
@@ -115,6 +117,31 @@ export const focusMultipleFeaureService = (
   feats: number[]
 ): Result<FeatureRunResult> => {
   const res = handleError(() => setMultipleFocus(feats));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+  return res;
+};
+
+export const focusedFeatures = (): Result<Feature[]> => {
+  const activeProject = handleError(() => getActiveProject());
+  if (!activeProject.success)
+    return { success: false, error: new Error(activeProject.error.message) };
+
+  const projectData = activeProject.data;
+  if (!projectData)
+    return { success: false, error: new Error("No active project found") };
+
+  const res = handleError(() => getAllfocusedFeatures(projectData.id));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+
+  return res;
+};
+
+export const unfocusMultipleFeaureService = (
+  feats: number[]
+): Result<FeatureRunResult> => {
+  const res = handleError(() => setUnfocus(feats));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
   return res;

@@ -6,7 +6,7 @@ import { listCurrentProject } from "./commands/projects/current.js";
 import { removeProject } from "./commands/projects/remove.js";
 import { addFeature } from "./commands/features/add.js";
 import { listFeature } from "./commands/features/list.js";
-import { focusAFeature } from "./commands/features/focus.js";
+import { focusAFeature, unfocusFeatures } from "./commands/features/focus.js";
 
 const program = new Command();
 
@@ -67,5 +67,10 @@ feat
   .action(async (featId: string, options: { many: boolean }) => {
     await focusAFeature(featId, options);
   });
+
+feat
+  .command("unfocus")
+  .description("unfocus a feature")
+  .action(async () => await unfocusFeatures());
 
 program.parseAsync();

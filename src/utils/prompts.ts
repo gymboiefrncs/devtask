@@ -22,3 +22,12 @@ export const promptfocusMultipleFeature = async (feats: Feature[]) => {
   });
   return answer;
 };
+
+export const promptunfocusMultipleFeature = async (feats: Feature[]) => {
+  if (!feats.length) return;
+  const answer = await checkbox({
+    message: "Select features to unfocus",
+    choices: feats.map((feat) => ({ name: feat.description, value: feat.id })),
+  });
+  return answer;
+};
