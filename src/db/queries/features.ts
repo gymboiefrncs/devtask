@@ -127,3 +127,14 @@ export const deleteFeat = (featId: number[]): FeatureRunResult => {
   });
   return performAction(featId);
 };
+
+export const insertNotes = (
+  notes: string,
+  featId: number
+): FeatureRunResult => {
+  return db
+    .prepare<[string, number], FeatureRunResult>(
+      "UPDATE features SET notes = ? WHERE id = ?"
+    )
+    .run(notes, featId);
+};

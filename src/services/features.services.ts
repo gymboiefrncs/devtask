@@ -12,6 +12,7 @@ import {
   setUnfocus,
   setStatusDone,
   deleteFeat,
+  insertNotes,
 } from "../db/queries/features.js";
 import type { Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
@@ -167,5 +168,19 @@ export const removeFeatureService = (
   const res = handleError(() => deleteFeat(feats));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
+  return res;
+};
+
+export const addNotesService = (
+  notes: string,
+  featId: string
+): Result<FeatureRunResult> => {
+  const idRes = ensureValidId(featId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
+
+  const res = handleError(() => insertNotes(notes, idRes));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+
   return res;
 };
