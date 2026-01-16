@@ -27,4 +27,3 @@ export function resetDatabase() {
     console.error("Failed to reset database:", err);
   }
 }
-resetDatabase();
