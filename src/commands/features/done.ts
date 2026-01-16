@@ -1,4 +1,8 @@
-import { markFeatureAsDoneService } from "../../services/features.services.js";
+import {
+  listAllFeaturesService,
+  markFeatureAsDoneService,
+} from "../../services/features.services.js";
+import { udpateProjectStatus } from "../../utils/updateProjectStatus.js";
 
 export const markAsDone = (featId: string) => {
   const res = markFeatureAsDoneService(featId);
@@ -9,4 +13,17 @@ export const markAsDone = (featId: string) => {
   }
 
   console.log(`feature with id (${featId}) is marked as done`);
+
+  const features = listAllFeaturesService();
+  if (!features.success) {
+    console.error(features.error.message);
+    process.exitCode = 1;
+    return;
+  }
+  if (!features.data.length) {
+    console.log("No features found for this project!");
+    return;
+  }
+
+  udpateProjectStatus(features.data);
 };

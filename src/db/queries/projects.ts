@@ -53,3 +53,9 @@ export const setActiveProject = (projectId: number): Projects => {
 export const deleteProject = (projectId: number) => {
   return db.prepare("DELETE FROM projects WHERE id = ?").run(projectId);
 };
+
+export const updateProject = (status: "done" | "active", projectId: number) => {
+  db.prepare<[string, number], void>(
+    "UPDATE projects SET status = ? WHERE id = ?"
+  ).run(status, projectId);
+};
