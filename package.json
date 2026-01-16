@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "bin": "dist/src/cli.js",
+  "bin": "./dist/cli.js",
   "scripts": {
     "dev": "tsx src/cli.ts",
     "reset": "tsx src/reset.ts",
