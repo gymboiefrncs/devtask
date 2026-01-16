@@ -1,6 +1,6 @@
 import { db } from "./db/database.js";
 
-function resetDatabase() {
+export function resetDatabase() {
   try {
     const tables = db
       .prepare(

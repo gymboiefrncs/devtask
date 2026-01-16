@@ -11,10 +11,13 @@ import { listFeature } from "./commands/features/list.js";
 import { focusAFeature, unfocusFeatures } from "./commands/features/focus.js";
 import { markAsDone } from "./commands/features/done.js";
 import { removeFeature } from "./commands/features/remove.js";
+import { resetDatabase } from "./reset.js";
 
 const program = new Command();
 
 // projects commands
+program.command("reset").description("Reset db").action(resetDatabase);
+
 program
   .name("devtask")
   .description("A CLI task management tool for developers that organizes work")
