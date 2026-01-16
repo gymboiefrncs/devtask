@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 import { initializeProject } from "./commands/projects/initialize.js";
 import { listProjects } from "./commands/projects/list.js";
