@@ -116,10 +116,16 @@ export const setUnfocus = (featId: number[]): FeatureRunResult => {
   return performAction(featId);
 };
 
-export const setStatusDone = (featId: number): FeatureRunResult => {
+export const setStatusDone = (
+  featId: number,
+  projectId: number,
+): FeatureRunResult => {
   return db
-    .prepare("UPDATE features SET is_focused = 0, status = 'done' WHERE id = ?")
-    .run(featId);
+    .prepare<
+      [number, number],
+      FeatureRunResult
+    >("UPDATE features SET is_focused = 0, status = 'done' WHERE id = ? AND project_id = ?")
+    .run(featId, projectId);
 };
 
 export const deleteFeat = (featId: number[]): FeatureRunResult => {

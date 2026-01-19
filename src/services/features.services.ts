@@ -169,9 +169,17 @@ export const markFeatureAsDoneService = (
   const idRes = ensureValidId(featId);
   if (idRes instanceof Error) return { success: false, error: idRes };
 
-  const res = handleError(() => setStatusDone(idRes));
-  if (!res.success) return { success: false, error: res.error };
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
 
+  const res = handleError(() => setStatusDone(idRes, projectId.data.id));
+  if (!res.success) return { success: false, error: res.error };
+  if (!res.data.changes)
+    return {
+      success: false,
+      error: new Error(`No feature found with id ${featId}`),
+    };
   return res;
 };
 
