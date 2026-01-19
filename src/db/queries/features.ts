@@ -48,13 +48,16 @@ export const getFeature = (featId: number): Feature | undefined => {
     .get(featId);
 };
 
-export const setFocus = (featId: number): FeatureRunResult => {
+export const setFocus = (
+  featId: number,
+  projectId: number,
+): FeatureRunResult => {
   const result = db
     .prepare<
-      [number],
+      [number, number],
       FeatureRunResult
-    >("UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?")
-    .run(featId);
+    >("UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ? AND project_id = ?")
+    .run(featId, projectId);
 
   return result;
 };

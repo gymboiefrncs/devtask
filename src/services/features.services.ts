@@ -18,6 +18,7 @@ import type { Projects, Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
 import { validateFeatureDescription } from "../utils/validateFeatDescription.js";
 import { ensureValidId } from "../utils/ensureValidId.js";
+import { activeprojectExist } from "../utils/activeProjectExists.js";
 
 export const checkActiveProjectExistService = (): Result<Projects> => {
   const activeProject = handleError(() => getActiveProject());
@@ -55,15 +56,11 @@ export const addFeatureService = (
 
   if (error) return { success: false, error };
 
-  const activeProject = handleError(() => getActiveProject());
-  if (!activeProject.success)
-    return { success: false, error: new Error(activeProject.error.message) };
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
 
-  const projectData = activeProject.data;
-  if (!projectData)
-    return { success: false, error: new Error("No active project found") };
-
-  const res = handleError(() => insertFeature(description, projectData.id));
+  const res = handleError(() => insertFeature(description, projectId.data.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 
@@ -78,15 +75,11 @@ export const addMultipleFeatureService = (
     if (error) return { success: false, error };
   }
 
-  const activeProject = handleError(() => getActiveProject());
-  if (!activeProject.success)
-    return { success: false, error: new Error(activeProject.error.message) };
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
 
-  const projectData = activeProject.data;
-  if (!projectData)
-    return { success: false, error: new Error("No active project found") };
-
-  const res = handleError(() => batchInsert(description, projectData.id));
+  const res = handleError(() => batchInsert(description, projectId.data.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
   return res;
@@ -105,10 +98,18 @@ export const focusFeatureService = (
   if (!featureData)
     return { success: false, error: new Error("No feature found!") };
 
-  const res = handleError(() => setFocus(idRes));
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
+
+  const res = handleError(() => setFocus(idRes, projectId.data.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
-
+  if (!res.data.changes)
+    return {
+      success: false,
+      error: new Error(`No feature found with id ${featId}`),
+    };
   return res;
 };
 
