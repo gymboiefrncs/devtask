@@ -13,6 +13,7 @@ import { markAsDone } from "./commands/features/done.js";
 import { removeFeature } from "./commands/features/remove.js";
 import { resetDatabase } from "./reset.js";
 import { addNotes } from "./commands/features/notes.js";
+import { editProject } from "./commands/projects/edit.js";
 
 const program = new Command();
 
@@ -49,6 +50,11 @@ program
   .command("remove <projectId>")
   .description("Deletes a project")
   .action(removeProject);
+
+program
+  .command("edit <projectId> <projectName>")
+  .description("Edit project name")
+  .action(editProject);
 
 // feature commands
 const feat = program.command("feat").description("Feature commands");

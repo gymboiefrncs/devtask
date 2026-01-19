@@ -6,7 +6,7 @@ import { ensureValidId } from "../utils/ensureValidId.js";
 
 // Serive to initialize new project
 export const initializeProjectService = (
-  projectName: string
+  projectName: string,
 ): Result<Projects, Error> => {
   const name = projectName.trim();
   const error = validateProjectName(name);
@@ -34,7 +34,7 @@ export const listProjectsService = (): Result<Projects[], Error> => {
 
 // Service to switch active project
 export const switchProjectService = (
-  projectId: string | number
+  projectId: string | number,
 ): Result<Projects, Error> => {
   // ensure id is valid
   const idRes = ensureValidId(projectId);
@@ -64,7 +64,7 @@ export const listCurrentProjectService = (): Result<Projects, Error> => {
 
 // Service to remove project
 export const removeProjectService = (
-  projectId: string
+  projectId: string,
 ): Result<ProjectRunResult, Error> => {
   // ensure id is valid
   const idRes = ensureValidId(projectId);
@@ -89,6 +89,25 @@ export const removeProjectService = (
     return { success: false, error: new Error(res.error.message) };
   if (!res.data.changes)
     return { success: false, error: new Error("Project not found") };
+
+  return res;
+};
+
+// Service to update project description
+export const updateProjectDescriptionService = (
+  projectName: string,
+  projectId: string,
+): Result<ProjectRunResult> => {
+  const idRes = ensureValidId(projectId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
+
+  const name = projectName.trim();
+  const error = validateProjectName(name);
+  if (error) return { success: false, error };
+
+  const res = handleError(() => queries.updateProjectDescription(name, idRes));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
 
   return res;
 };
