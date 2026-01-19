@@ -24,7 +24,7 @@ export const initializeProjectService = (
 };
 
 // Service to list all projects
-export const listProjectsService = (): Result<Projects[], Error> => {
+export const getProjectsService = (): Result<Projects[], Error> => {
   const res = handleError(() => queries.getAllProjects());
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
@@ -52,7 +52,7 @@ export const switchProjectService = (
 };
 
 // Service to get the current project
-export const listCurrentProjectService = (): Result<Projects, Error> => {
+export const getCurrentProjectService = (): Result<Projects, Error> => {
   const res = handleError(() => queries.getActiveProject());
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
@@ -93,8 +93,8 @@ export const removeProjectService = (
   return res;
 };
 
-// Service to update project description
-export const updateProjectDescriptionService = (
+// Service to update project name
+export const updateProjectNameService = (
   projectName: string,
   projectId: string,
 ): Result<ProjectRunResult> => {

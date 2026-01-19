@@ -14,7 +14,7 @@ export const addFeatures = async () => {
   return features;
 };
 
-export const promptfocusMultipleFeature = async (feats: Feature[]) => {
+export const promptFocusMultipleFeatures = async (feats: Feature[]) => {
   if (!feats.length) return;
   const answer = await checkbox({
     message: "Select features to focus on",
@@ -23,7 +23,7 @@ export const promptfocusMultipleFeature = async (feats: Feature[]) => {
   return answer;
 };
 
-export const promptunfocusMultipleFeature = async (feats: Feature[]) => {
+export const promptUnfocusMultipleFeatures = async (feats: Feature[]) => {
   if (!feats.length) return;
   const answer = await checkbox({
     message: "Select features to unfocus",

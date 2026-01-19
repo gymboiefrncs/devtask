@@ -3,7 +3,7 @@ import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
 import type { Feature } from "../../types/Features.js";
 
-export const listFeature = (options: { all?: boolean; todo?: boolean }) => {
+export const listFeatures = (options: { all?: boolean; todo?: boolean }) => {
   const features = listAllFeaturesService();
   if (!features.success) {
     console.error(features.error.message);
@@ -24,12 +24,12 @@ export const listFeature = (options: { all?: boolean; todo?: boolean }) => {
     label = "";
   } else if (options.todo) {
     dataToDisplay = features.data.filter(
-      (feature) => feature.status === "todo"
+      (feature) => feature.status === "todo",
     );
     label = "todo";
   } else {
     dataToDisplay = features.data.filter(
-      (feature) => feature.status === "in_progress"
+      (feature) => feature.status === "in_progress",
     );
     label = "in-progress";
   }
@@ -57,7 +57,7 @@ export const listFeature = (options: { all?: boolean; todo?: boolean }) => {
   Notes: ${feature.notes ?? "No notes"}
 
   ${"=".repeat(50)}  
-  `
+  `,
     );
   });
 };

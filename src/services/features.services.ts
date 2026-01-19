@@ -2,13 +2,13 @@ import { handleError } from "../utils/handleError.js";
 import { getActiveProject } from "../db/queries/projects.js";
 import {
   batchInsert,
-  getAllFeature,
+  getAllFeatures,
   getAllUnfocusedFeatures,
   getFeature,
   insertFeature,
   setFocus,
   setMultipleFocus,
-  getAllfocusedFeatures,
+  getAllFocusedFeatures,
   setUnfocus,
   setStatusDone,
   deleteFeat,
@@ -40,7 +40,7 @@ export const listAllFeaturesService = (): Result<Feature[]> => {
   if (!projectData)
     return { success: false, error: new Error("No active project found") };
 
-  const res = handleError(() => getAllFeature(projectData.id));
+  const res = handleError(() => getAllFeatures(projectData.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 
@@ -92,7 +92,7 @@ export const addMultipleFeatureService = (
   return res;
 };
 
-export const focusAFeatureService = (
+export const focusFeatureService = (
   featId: string,
 ): Result<FeatureRunResult> => {
   const idRes = ensureValidId(featId);
@@ -112,7 +112,7 @@ export const focusAFeatureService = (
   return res;
 };
 
-export const unfocusedFeatures = (): Result<Feature[]> => {
+export const getUnfocusedFeatures = (): Result<Feature[]> => {
   const activeProject = handleError(() => getActiveProject());
   if (!activeProject.success)
     return { success: false, error: new Error(activeProject.error.message) };
@@ -128,7 +128,7 @@ export const unfocusedFeatures = (): Result<Feature[]> => {
   return res;
 };
 
-export const focusMultipleFeaureService = (
+export const focusMultipleFeaturesService = (
   feats: number[],
 ): Result<FeatureRunResult> => {
   const res = handleError(() => setMultipleFocus(feats));
@@ -137,7 +137,7 @@ export const focusMultipleFeaureService = (
   return res;
 };
 
-export const focusedFeatures = (): Result<Feature[]> => {
+export const getFocusedFeatures = (): Result<Feature[]> => {
   const activeProject = handleError(() => getActiveProject());
   if (!activeProject.success)
     return { success: false, error: new Error(activeProject.error.message) };
@@ -146,14 +146,14 @@ export const focusedFeatures = (): Result<Feature[]> => {
   if (!projectData)
     return { success: false, error: new Error("No active project found") };
 
-  const res = handleError(() => getAllfocusedFeatures(projectData.id));
+  const res = handleError(() => getAllFocusedFeatures(projectData.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 
   return res;
 };
 
-export const unfocusMultipleFeaureService = (
+export const unfocusMultipleFeaturesService = (
   feats: number[],
 ): Result<FeatureRunResult> => {
   const res = handleError(() => setUnfocus(feats));

@@ -4,11 +4,11 @@ import { Command } from "commander";
 import { initializeProject } from "./commands/projects/initialize.js";
 import { listProjects } from "./commands/projects/list.js";
 import { switchProject } from "./commands/projects/switch.js";
-import { listCurrentProject } from "./commands/projects/current.js";
+import { getCurrentProject } from "./commands/projects/current.js";
 import { removeProject } from "./commands/projects/remove.js";
 import { addFeature } from "./commands/features/add.js";
-import { listFeature } from "./commands/features/list.js";
-import { focusAFeature, unfocusFeatures } from "./commands/features/focus.js";
+import { listFeatures } from "./commands/features/list.js";
+import { focusFeature, unfocusFeatures } from "./commands/features/focus.js";
 import { markAsDone } from "./commands/features/done.js";
 import { removeFeature } from "./commands/features/remove.js";
 import { resetDatabase } from "./reset.js";
@@ -44,7 +44,7 @@ program
 program
   .command("current")
   .description("Get current project")
-  .action(listCurrentProject);
+  .action(getCurrentProject);
 
 program
   .command("remove <projectId>")
@@ -72,14 +72,14 @@ feat
   .description("List in-progress feature of the active project")
   .option("-a, --all", "List all feature of the active project")
   .option("-t, --todo", "List todo features of the active project")
-  .action(listFeature);
+  .action(listFeatures);
 
 feat
   .command("focus [featId]")
   .description("Focus on a feature")
   .option("-m, --many", "Focus multiple feature")
   .action(async (featId: string, options: { many: boolean }) => {
-    await focusAFeature(featId, options);
+    await focusFeature(featId, options);
   });
 
 feat

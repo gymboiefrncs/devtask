@@ -1,9 +1,9 @@
-import { listProjectsService } from "../../services/projects.services.js";
+import { getProjectsService } from "../../services/projects.services.js";
 import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
 
 export const listProjects = (): void => {
-  const projects = listProjectsService();
+  const projects = getProjectsService();
   if (!projects.success) {
     console.error(projects.error);
     process.exitCode = 1;
@@ -24,7 +24,7 @@ export const listProjects = (): void => {
       : chalk.red(project.status)
   }
   Created at: ${formatDate(project.created_at)}
-  `
+  `,
     );
   });
 };

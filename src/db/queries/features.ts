@@ -1,7 +1,7 @@
 import type { Feature, FeatureRunResult } from "../../types/Features.js";
 import { db } from "../database.js";
 
-export const getAllFeature = (projectId: number): Feature[] => {
+export const getAllFeatures = (projectId: number): Feature[] => {
   return db
     .prepare<[number], Feature>("SELECT * from features WHERE project_id = ?")
     .all(projectId);
@@ -9,28 +9,30 @@ export const getAllFeature = (projectId: number): Feature[] => {
 
 export const insertFeature = (
   description: string,
-  projectId: number
+  projectId: number,
 ): FeatureRunResult => {
   const result = db
-    .prepare<[string, number], Feature>(
-      "INSERT INTO features (description, project_id) VALUES (?, ?)"
-    )
+    .prepare<
+      [string, number],
+      Feature
+    >("INSERT INTO features (description, project_id) VALUES (?, ?)")
     .run(description, projectId);
   return { changes: result.changes, lastInsertRowid: result.lastInsertRowid };
 };
 
 export const batchInsert = (
   description: string[],
-  projectId: number
+  projectId: number,
 ): FeatureRunResult => {
   const performInsert = db.transaction((desc: string[], id: number) => {
     let changes = 0;
     let lastInsertRowid: number | bigint = 0;
     for (const d of desc) {
       const feature = db
-        .prepare<[string, number], Feature>(
-          "INSERT INTO features (description, project_id) VALUES (?, ?)"
-        )
+        .prepare<
+          [string, number],
+          Feature
+        >("INSERT INTO features (description, project_id) VALUES (?, ?)")
         .run(d, id);
       changes += feature.changes;
       lastInsertRowid = feature.lastInsertRowid;
@@ -48,9 +50,10 @@ export const getFeature = (featId: number): Feature | undefined => {
 
 export const setFocus = (featId: number): FeatureRunResult => {
   const result = db
-    .prepare<[number], FeatureRunResult>(
-      "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?"
-    )
+    .prepare<
+      [number],
+      FeatureRunResult
+    >("UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?")
     .run(featId);
 
   return result;
@@ -58,17 +61,19 @@ export const setFocus = (featId: number): FeatureRunResult => {
 
 export const getAllUnfocusedFeatures = (projectId: number): Feature[] => {
   return db
-    .prepare<[number], Feature>(
-      "SELECT * from features WHERE project_id = ? and  is_focused = 0"
-    )
+    .prepare<
+      [number],
+      Feature
+    >("SELECT * from features WHERE project_id = ? and  is_focused = 0")
     .all(projectId);
 };
 
-export const getAllfocusedFeatures = (projectId: number): Feature[] => {
+export const getAllFocusedFeatures = (projectId: number): Feature[] => {
   return db
-    .prepare<[number], Feature>(
-      "SELECT * from features WHERE project_id = ? and  is_focused = 1"
-    )
+    .prepare<
+      [number],
+      Feature
+    >("SELECT * from features WHERE project_id = ? and  is_focused = 1")
     .all(projectId);
 };
 
@@ -79,7 +84,7 @@ export const setMultipleFocus = (featId: number[]): FeatureRunResult => {
     for (const id of ids) {
       const result = db
         .prepare(
-          "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?"
+          "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?",
         )
         .run(id);
       changes += result.changes;
@@ -97,7 +102,7 @@ export const setUnfocus = (featId: number[]): FeatureRunResult => {
     for (const id of ids) {
       const result = db
         .prepare(
-          "UPDATE features SET is_focused = 0, status = 'todo' WHERE id = ?"
+          "UPDATE features SET is_focused = 0, status = 'todo' WHERE id = ?",
         )
         .run(id);
       changes += result.changes;
@@ -130,11 +135,12 @@ export const deleteFeat = (featId: number[]): FeatureRunResult => {
 
 export const insertNotes = (
   notes: string,
-  featId: number
+  featId: number,
 ): FeatureRunResult => {
   return db
-    .prepare<[string, number], FeatureRunResult>(
-      "UPDATE features SET notes = ? WHERE id = ?"
-    )
+    .prepare<
+      [string, number],
+      FeatureRunResult
+    >("UPDATE features SET notes = ? WHERE id = ?")
     .run(notes, featId);
 };

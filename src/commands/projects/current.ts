@@ -1,9 +1,9 @@
-import { listCurrentProjectService } from "../../services/projects.services.js";
+import { getCurrentProjectService } from "../../services/projects.services.js";
 import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
 
-export const listCurrentProject = (): void => {
-  const currentProject = listCurrentProjectService();
+export const getCurrentProject = (): void => {
+  const currentProject = getCurrentProjectService();
   if (!currentProject.success) {
     console.error(currentProject.error);
     process.exitCode = 1;
@@ -12,7 +12,7 @@ export const listCurrentProject = (): void => {
 
   console.log(
     `${chalk.yellow(`ID: ${currentProject.data.id}`)} - ${chalk.blue(
-      currentProject.data.name
+      currentProject.data.name,
     )}
   Status: ${
     currentProject.data.status === "active"
@@ -20,6 +20,6 @@ export const listCurrentProject = (): void => {
       : chalk.red(currentProject.data.status)
   }
   Created at: ${formatDate(currentProject.data.created_at)}
-`
+`,
   );
 };

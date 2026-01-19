@@ -2,7 +2,7 @@ import {
   listAllFeaturesService,
   markFeatureAsDoneService,
 } from "../../services/features.services.js";
-import { udpateProjectStatus } from "../../utils/updateProjectStatus.js";
+import { updateProjectStatus } from "../../utils/updateProjectStatus.js";
 
 export const markAsDone = (featId: string) => {
   const res = markFeatureAsDoneService(featId);
@@ -25,5 +25,5 @@ export const markAsDone = (featId: string) => {
     return;
   }
 
-  udpateProjectStatus(features.data);
+  updateProjectStatus(features.data);
 };
