@@ -14,10 +14,22 @@ import {
   deleteFeat,
   insertNotes,
 } from "../db/queries/features.js";
-import type { Result } from "../types/Projects.js";
+import type { Projects, Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
 import { validateFeatureDescription } from "../utils/validateFeatDescription.js";
 import { ensureValidId } from "../utils/ensureValidId.js";
+
+export const checkActiveProjectExistService = (): Result<Projects> => {
+  const activeProject = handleError(() => getActiveProject());
+  if (!activeProject.success)
+    return { success: false, error: new Error(activeProject.error.message) };
+
+  const projectData = activeProject.data;
+  if (!projectData)
+    return { success: false, error: new Error("No active project found") };
+
+  return { success: true, data: projectData };
+};
 
 export const listAllFeaturesService = (): Result<Feature[]> => {
   const activeProject = handleError(() => getActiveProject());
@@ -36,7 +48,7 @@ export const listAllFeaturesService = (): Result<Feature[]> => {
 };
 
 export const addFeatureService = (
-  description: string
+  description: string,
 ): Result<FeatureRunResult> => {
   const desc = description.trim();
   const error = validateFeatureDescription(desc);
@@ -59,7 +71,7 @@ export const addFeatureService = (
 };
 
 export const addMultipleFeatureService = (
-  description: string[]
+  description: string[],
 ): Result<FeatureRunResult> => {
   for (const desc of description) {
     const error = validateFeatureDescription(desc.trim());
@@ -81,7 +93,7 @@ export const addMultipleFeatureService = (
 };
 
 export const focusAFeatureService = (
-  featId: string
+  featId: string,
 ): Result<FeatureRunResult> => {
   const idRes = ensureValidId(featId);
   if (idRes instanceof Error) return { success: false, error: idRes };
@@ -117,7 +129,7 @@ export const unfocusedFeatures = (): Result<Feature[]> => {
 };
 
 export const focusMultipleFeaureService = (
-  feats: number[]
+  feats: number[],
 ): Result<FeatureRunResult> => {
   const res = handleError(() => setMultipleFocus(feats));
   if (!res.success)
@@ -142,7 +154,7 @@ export const focusedFeatures = (): Result<Feature[]> => {
 };
 
 export const unfocusMultipleFeaureService = (
-  feats: number[]
+  feats: number[],
 ): Result<FeatureRunResult> => {
   const res = handleError(() => setUnfocus(feats));
   if (!res.success)
@@ -151,7 +163,7 @@ export const unfocusMultipleFeaureService = (
 };
 
 export const markFeatureAsDoneService = (
-  featId: string
+  featId: string,
 ): Result<FeatureRunResult> => {
   const idRes = ensureValidId(featId);
   if (idRes instanceof Error) return { success: false, error: idRes };
@@ -163,7 +175,7 @@ export const markFeatureAsDoneService = (
 };
 
 export const removeFeatureService = (
-  feats: number[]
+  feats: number[],
 ): Result<FeatureRunResult> => {
   const res = handleError(() => deleteFeat(feats));
   if (!res.success)
@@ -173,7 +185,7 @@ export const removeFeatureService = (
 
 export const addNotesService = (
   notes: string,
-  featId: string
+  featId: string,
 ): Result<FeatureRunResult> => {
   const idRes = ensureValidId(featId);
   if (idRes instanceof Error) return { success: false, error: idRes };

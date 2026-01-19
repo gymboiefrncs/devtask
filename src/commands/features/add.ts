@@ -1,13 +1,21 @@
 import {
   addFeatureService,
   addMultipleFeatureService,
+  checkActiveProjectExistService,
 } from "../../services/features.services.js";
 import { addFeatures } from "../../utils/prompts.js";
 
 export const addFeature = async (
   description: string,
-  options: { many: boolean }
+  options: { many: boolean },
 ) => {
+  const activeProjectExist = checkActiveProjectExistService();
+  if (!activeProjectExist.success) {
+    console.error(activeProjectExist.error.message);
+    process.exitCode = 1;
+    return;
+  }
+
   if (options.many) {
     const ans = await addFeatures();
     const features = addMultipleFeatureService(ans);
