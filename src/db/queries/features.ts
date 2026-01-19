@@ -145,11 +145,12 @@ export const deleteFeat = (featId: number[]): FeatureRunResult => {
 export const insertNotes = (
   notes: string,
   featId: number,
+  projectId: number,
 ): FeatureRunResult => {
   return db
     .prepare<
-      [string, number],
+      [string, number, number],
       FeatureRunResult
-    >("UPDATE features SET notes = ? WHERE id = ?")
-    .run(notes, featId);
+    >("UPDATE features SET notes = ? WHERE id = ? AND project_id = ?")
+    .run(notes, featId, projectId);
 };

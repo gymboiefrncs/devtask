@@ -199,9 +199,17 @@ export const addNotesService = (
   const idRes = ensureValidId(featId);
   if (idRes instanceof Error) return { success: false, error: idRes };
 
-  const res = handleError(() => insertNotes(notes, idRes));
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
+
+  const res = handleError(() => insertNotes(notes, idRes, projectId.data.id));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
-
+  if (!res.data.changes)
+    return {
+      success: false,
+      error: new Error(`No feature found with id ${featId}`),
+    };
   return res;
 };
