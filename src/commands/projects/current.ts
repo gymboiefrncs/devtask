@@ -5,7 +5,7 @@ import { formatDate } from "../../utils/formatDate.js";
 export const getCurrentProject = (): void => {
   const currentProject = getCurrentProjectService();
   if (!currentProject.success) {
-    console.error(currentProject.error);
+    console.error(currentProject.error.message);
     process.exitCode = 1;
     return;
   }

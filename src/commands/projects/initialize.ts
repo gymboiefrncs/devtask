@@ -9,7 +9,7 @@ export const initializeProject = (
 ): void => {
   const newProject = initializeProjectService(projectName);
   if (!newProject.success) {
-    console.error(newProject.error);
+    console.error(newProject.error.message);
     process.exitCode = 1;
     return;
   }
