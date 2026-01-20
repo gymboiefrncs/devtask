@@ -8,17 +8,17 @@ export const addFeature = async (
   description: string,
   options: { many: boolean },
 ) => {
-  const result = options.many
+  const addResult = options.many
     ? addMultipleFeatureService(await addFeatures())
     : addFeatureService(description);
 
-  if (!result.success) {
-    console.error(result.error.message);
+  if (!addResult.success) {
+    console.error(addResult.error.message);
     process.exitCode = 1;
     return;
   }
 
-  const { changes } = result.data;
+  const { changes } = addResult.data;
   const label = changes === 1 ? "Features" : "Features";
   console.log(`(${changes}) ${label} added`);
 };

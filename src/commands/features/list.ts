@@ -22,17 +22,19 @@ export const listFeatures = (featId: string, options: ListOptions): void => {
     Notes: ${f.notes ?? "No notes"}\n${"=".repeat(50)}`);
   };
 
-  const result = featId ? listFeatureService(featId) : listAllFeaturesService();
+  const listResult = featId
+    ? listFeatureService(featId)
+    : listAllFeaturesService();
 
-  if (!result.success) {
-    console.error(result.error.message);
+  if (!listResult.success) {
+    console.error(listResult.error.message);
     process.exitCode = 1;
     return;
   }
 
   // if res.data is not an array then its a sinlge feature
-  if (!Array.isArray(result.data)) {
-    printFeat(result.data);
+  if (!Array.isArray(listResult.data)) {
+    printFeat(listResult.data);
     return;
   }
 
@@ -51,8 +53,8 @@ export const listFeatures = (featId: string, options: ListOptions): void => {
   );
 
   const dataToDisplay = option
-    ? result.data.filter(callbacks[option])
-    : result.data.filter((f) => f.status === "in_progress");
+    ? listResult.data.filter(callbacks[option])
+    : listResult.data.filter((f) => f.status === "in_progress");
 
   if (!dataToDisplay.length) {
     console.log(`No ${option || "in-progress"} features found!`);

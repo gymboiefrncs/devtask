@@ -15,32 +15,32 @@ export const focusFeature = async (
   options: { many?: boolean },
 ) => {
   if (options.many) {
-    const unfocusedFeatures = getUnfocusedFeaturesService();
-    if (!unfocusedFeatures.success) {
-      console.error(unfocusedFeatures.error.message);
+    const unfocusedList = getUnfocusedFeaturesService();
+    if (!unfocusedList.success) {
+      console.error(unfocusedList.error.message);
       process.exitCode = 1;
       return;
     }
-    const { data } = unfocusedFeatures;
-    const ids = await promptFocusMultipleFeatures(data);
-    if (!ids) {
+    const { data } = unfocusedList;
+    const selectedIds = await promptFocusMultipleFeatures(data);
+    if (!selectedIds) {
       console.log("No feature left to focus");
       return;
     }
 
-    const result = focusMultipleFeaturesService(ids);
-    if (!result.success) {
-      console.error(result.error.message);
+    const updateResult = focusMultipleFeaturesService(selectedIds);
+    if (!updateResult.success) {
+      console.error(updateResult.error.message);
       process.exitCode = 1;
       return;
     }
 
-    console.log(`(${result.data.changes}) is focused`);
+    console.log(`(${updateResult.data.changes}) is focused`);
   } else {
-    const focusedFeatures = focusFeatureService(featId);
+    const focusedList = focusFeatureService(featId);
 
-    if (!focusedFeatures.success) {
-      console.error(focusedFeatures.error.message);
+    if (!focusedList.success) {
+      console.error(focusedList.error.message);
       process.exitCode = 1;
       return;
     }
@@ -62,11 +62,11 @@ export const unfocusFeatures = async () => {
     return;
   }
 
-  const result = unfocusMultipleFeaturesService(ids);
-  if (!result.success) {
-    console.error(result.error.message);
+  const updateResult = unfocusMultipleFeaturesService(ids);
+  if (!updateResult.success) {
+    console.error(updateResult.error.message);
     process.exitCode = 1;
     return;
   }
-  console.log(`Unfocused (${result.data.changes}) features`);
+  console.log(`Unfocused (${updateResult.data.changes}) features`);
 };
