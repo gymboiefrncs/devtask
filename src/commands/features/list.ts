@@ -8,7 +8,13 @@ import type { Feature } from "../../types/Features.js";
 
 export const listFeatures = (
   featId: string,
-  options: { all?: boolean; todo?: boolean; done?: boolean },
+  options: {
+    all?: boolean;
+    todo?: boolean;
+    done?: boolean;
+    focus?: boolean;
+    unfocus?: boolean;
+  },
 ) => {
   const statusColors = {
     todo: chalk.blue,
@@ -66,6 +72,12 @@ export const listFeatures = (
       (feature) => feature.status === "done",
     );
     label = "done";
+  } else if (options.focus) {
+    dataToDisplay = features.data.filter((feature) => feature.is_focused);
+    label = "focused";
+  } else if (options.unfocus) {
+    dataToDisplay = features.data.filter((feature) => !feature.is_focused);
+    label = "unfocused";
   } else {
     dataToDisplay = features.data.filter(
       (feature) => feature.status === "in_progress",

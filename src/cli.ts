@@ -73,6 +73,8 @@ feat
   .option("-a, --all", "List all feature of the active project")
   .option("-t, --todo", "List todo features of the active project")
   .option("-d, --done", "List done features of the active project")
+  .option("-f, --focus", "List focused features of the active project")
+  .option("-u, --unfocus", "List unfocued features of the active project")
   .action(listFeatures);
 
 feat
