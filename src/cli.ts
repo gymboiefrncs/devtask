@@ -14,7 +14,7 @@ import { removeFeature } from "./commands/features/remove.js";
 import { resetDatabase } from "./reset.js";
 import { addNotes } from "./commands/features/notes.js";
 import { editProject } from "./commands/projects/edit.js";
-
+import { db } from "./db/database.js";
 const program = new Command();
 
 // projects commands
@@ -105,4 +105,5 @@ feat
   .description("Add notes for features")
   .action(addNotes);
 
-program.parseAsync();
+await program.parseAsync();
+db.close();
