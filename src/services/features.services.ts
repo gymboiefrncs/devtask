@@ -20,188 +20,234 @@ import { validateFeatureDescription } from "../utils/validateFeatDescription.js"
 import { ensureValidId } from "../utils/ensureValidId.js";
 import { activeprojectExist } from "../utils/activeProjectExists.js";
 
+// ==============
+// GET SERVICES
+// ==============
 export const listFeatureService = (featId: string): Result<Feature> => {
-  const idRes = ensureValidId(featId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
+  const validatedId: number | Error = ensureValidId(featId);
+  if (validatedId instanceof Error)
+    return { success: false, error: validatedId };
 
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
 
-  const feature = handleError(() => getFeature(idRes, projectId.data.id));
-  if (!feature.success) return { success: false, error: feature.error };
-  if (!feature.data)
+  const result = handleError(() =>
+    getFeature(validatedId, activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data)
     return { success: false, error: new Error("No feature found!") };
 
-  return { success: true, data: feature.data };
+  return { success: true, data: result.data };
 };
 
 export const listAllFeaturesService = (): Result<Feature[]> => {
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
 
-  const res = handleError(() => getAllFeatures(projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
+  const result = handleError(() => getAllFeatures(activeProject.data.id));
+  if (!result.success) return { success: false, error: result.error };
 
-  return res;
+  return result;
 };
 
+export const getUnfocusedFeatures = (): Result<Feature[]> => {
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
+
+  const result = handleError(() =>
+    getAllUnfocusedFeatures(activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
+
+  return result;
+};
+
+export const getFocusedFeatures = (): Result<Feature[]> => {
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
+
+  const result = handleError(() =>
+    getAllFocusedFeatures(activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
+
+  return result;
+};
+
+// ================
+// INSERT SERVICES
+// ================
 export const addFeatureService = (
   description: string,
 ): Result<FeatureRunResult> => {
-  const desc = description.trim();
-  const error = validateFeatureDescription(desc);
+  const sanitized = description.trim();
 
-  if (error) return { success: false, error };
+  const validationError: Error | null = validateFeatureDescription(sanitized);
+  if (validationError) return { success: false, error: validationError };
 
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
 
-  const res = handleError(() => insertFeature(desc, projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
+  const result = handleError(() =>
+    insertFeature(sanitized, activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
 
-  return res;
+  return result;
 };
 
 export const addMultipleFeatureService = (
   description: string[],
 ): Result<FeatureRunResult> => {
-  const trimmed: string[] = [];
+  const sanitized: string[] = [];
 
-  for (const rawDesc of description) {
-    const desc = rawDesc.trim();
-    const error = validateFeatureDescription(desc);
-    if (error) return { success: false, error };
-    trimmed.push(desc);
+  for (const raw of description) {
+    const desc = raw.trim();
+    const validationError: Error | null = validateFeatureDescription(desc);
+    if (validationError) return { success: false, error: validationError };
+    sanitized.push(desc);
   }
 
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
 
-  const res = handleError(() => batchInsert(trimmed, projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
-  return res;
-};
-
-export const focusFeatureService = (
-  featId: string,
-): Result<FeatureRunResult> => {
-  const idRes = ensureValidId(featId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
-
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
-
-  const res = handleError(() => setFocus(idRes, projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
-  if (!res.data.changes)
-    return {
-      success: false,
-      error: new Error(`No feature found with id ${featId}`),
-    };
-  return res;
-};
-
-export const getUnfocusedFeatures = (): Result<Feature[]> => {
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
-
-  const res = handleError(() => getAllUnfocusedFeatures(projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
-
-  return res;
-};
-
-export const focusMultipleFeaturesService = (
-  feats: number[],
-): Result<FeatureRunResult> => {
-  const res = handleError(() => setMultipleFocus(feats));
-  if (!res.success) return { success: false, error: res.error };
-  return res;
-};
-
-export const getFocusedFeatures = (): Result<Feature[]> => {
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
-
-  const res = handleError(() => getAllFocusedFeatures(projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
-
-  return res;
-};
-
-export const unfocusMultipleFeaturesService = (
-  feats: number[],
-): Result<FeatureRunResult> => {
-  const res = handleError(() => setUnfocus(feats));
-  if (!res.success) return { success: false, error: res.error };
-  return res;
-};
-
-export const markFeatureAsDoneService = (
-  featId: string,
-): Result<FeatureRunResult> => {
-  const idRes = ensureValidId(featId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
-
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
-
-  const res = handleError(() => setStatusDone(idRes, projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
-  if (!res.data.changes)
-    return {
-      success: false,
-      error: new Error(`No feature found with id ${featId}`),
-    };
-  return res;
-};
-
-export const removeFeatureService = (
-  feats: number[],
-): Result<FeatureRunResult> => {
-  const res = handleError(() => deleteFeat(feats));
-  if (!res.success) return { success: false, error: res.error };
-  return res;
+  const result = handleError(() =>
+    batchInsert(sanitized, activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
+  return result;
 };
 
 export const addNotesService = (
   notes: string,
   featId: string,
 ): Result<FeatureRunResult> => {
-  const idRes = ensureValidId(featId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
+  const validatedId: number | Error = ensureValidId(featId);
+  if (validatedId instanceof Error)
+    return { success: false, error: validatedId };
 
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
 
-  const res = handleError(() => insertNotes(notes, idRes, projectId.data.id));
-  if (!res.success) return { success: false, error: res.error };
-  if (!res.data.changes)
+  const result = handleError(() =>
+    insertNotes(notes, validatedId, activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data.changes)
     return {
       success: false,
       error: new Error(`No feature found with id ${featId}`),
     };
-  return res;
+  return result;
+};
+
+// ================
+// UPDATE SERVICES
+// ================
+export const focusFeatureService = (
+  featId: string,
+): Result<FeatureRunResult> => {
+  const validatedId: number | Error = ensureValidId(featId);
+  if (validatedId instanceof Error)
+    return { success: false, error: validatedId };
+
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
+
+  const result = handleError(() =>
+    setFocus(validatedId, activeProject.data.id),
+  );
+
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data.changes)
+    return {
+      success: false,
+      error: new Error(`No feature found with id ${featId}`),
+    };
+
+  return result;
+};
+
+export const focusMultipleFeaturesService = (
+  featIds: number[],
+): Result<FeatureRunResult> => {
+  const result = handleError(() => setMultipleFocus(featIds));
+  if (!result.success) return { success: false, error: result.error };
+  return result;
+};
+
+export const unfocusMultipleFeaturesService = (
+  featIds: number[],
+): Result<FeatureRunResult> => {
+  const result = handleError(() => setUnfocus(featIds));
+  if (!result.success) return { success: false, error: result.error };
+  return result;
+};
+
+export const markFeatureAsDoneService = (
+  featId: string,
+): Result<FeatureRunResult> => {
+  const validatedId: number | Error = ensureValidId(featId);
+  if (validatedId instanceof Error)
+    return { success: false, error: validatedId };
+
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
+
+  const result = handleError(() =>
+    setStatusDone(validatedId, activeProject.data.id),
+  );
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data.changes)
+    return {
+      success: false,
+      error: new Error(`No feature found with id ${featId}`),
+    };
+
+  return result;
 };
 
 export const updateDescriptionService = (
   description: string,
   featId: string,
 ) => {
-  const idRes = ensureValidId(featId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
+  const validatedId: number | Error = ensureValidId(featId);
+  if (validatedId instanceof Error)
+    return { success: false, error: validatedId };
 
-  const projectId = activeprojectExist();
-  if (!projectId.success) return { success: false, error: projectId.error };
+  const activeProject = activeprojectExist();
+  if (!activeProject.success)
+    return { success: false, error: activeProject.error };
 
-  const res = handleError(() =>
-    updateDescription(description, idRes, projectId.data.id),
+  const result = handleError(() =>
+    updateDescription(description, validatedId, activeProject.data.id),
   );
-  if (!res.success) return { success: false, error: res.error };
-  if (!res.data.changes)
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data.changes)
     return {
       success: false,
       error: new Error(`No feature found with id ${featId}`),
     };
-  return res;
+  return result;
+};
+
+// ===============
+// DELETE SERVICE
+// ===============
+export const removeFeatureService = (
+  featIds: number[],
+): Result<FeatureRunResult> => {
+  const result = handleError(() => deleteFeat(featIds));
+  if (!result.success) return { success: false, error: result.error };
+  return result;
 };
