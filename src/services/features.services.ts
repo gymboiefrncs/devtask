@@ -85,17 +85,17 @@ export const getFocusedFeatures = (): Result<Feature[]> => {
 export const addFeatureService = (
   description: string,
 ): Result<FeatureRunResult> => {
-  const sanitized = description.trim();
-
-  const validationError: Error | null = validateFeatureDescription(sanitized);
-  if (validationError) return { success: false, error: validationError };
+  const validDescription: Error | string =
+    validateFeatureDescription(description);
+  if (validDescription instanceof Error)
+    return { success: false, error: validDescription };
 
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
 
   const result = handleError(() =>
-    insertFeature(sanitized, activeProject.data.id),
+    insertFeature(validDescription, activeProject.data.id),
   );
   if (!result.success) return { success: false, error: result.error };
 
@@ -109,8 +109,9 @@ export const addMultipleFeatureService = (
 
   for (const raw of description) {
     const desc = raw.trim();
-    const validationError: Error | null = validateFeatureDescription(desc);
-    if (validationError) return { success: false, error: validationError };
+    const validDescription: Error | string = validateFeatureDescription(desc);
+    if (validDescription instanceof Error)
+      return { success: false, error: validDescription };
     sanitized.push(desc);
   }
 

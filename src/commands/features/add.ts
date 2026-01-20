@@ -2,37 +2,23 @@ import {
   addFeatureService,
   addMultipleFeatureService,
 } from "../../services/features.services.js";
-import { activeprojectExist } from "../../utils/activeProjectExists.js";
 import { addFeatures } from "../../utils/prompts.js";
 
 export const addFeature = async (
   description: string,
   options: { many: boolean },
 ) => {
-  const activeProjectExist = activeprojectExist();
-  if (!activeProjectExist.success) {
-    console.error(activeProjectExist.error.message);
+  const result = options.many
+    ? addMultipleFeatureService(await addFeatures())
+    : addFeatureService(description);
+
+  if (!result.success) {
+    console.error(result.error.message);
     process.exitCode = 1;
     return;
   }
 
-  if (options.many) {
-    const ans = await addFeatures();
-    const features = addMultipleFeatureService(ans);
-    if (!features.success) {
-      console.error(features.error.message);
-      process.exitCode = 1;
-      return;
-    }
-
-    console.log(`(${features.data.changes}) Feature added`);
-  } else {
-    const feature = addFeatureService(description);
-    if (!feature.success) {
-      console.error(feature.error.message);
-      process.exitCode = 1;
-      return;
-    }
-    console.log(`(${feature.data.changes}) Feature added`);
-  }
+  const { changes } = result.data;
+  const label = changes === 1 ? "Features" : "Features";
+  console.log(`(${changes}) ${label} added`);
 };
