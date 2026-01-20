@@ -15,6 +15,7 @@ import { resetDatabase } from "./reset.js";
 import { addNotes } from "./commands/features/notes.js";
 import { editProject } from "./commands/projects/edit.js";
 import { db } from "./db/database.js";
+import { editDescription } from "./commands/features/edit.js";
 const program = new Command();
 
 // projects commands
@@ -66,6 +67,11 @@ feat
   .action(async (description: string, options: { many: boolean }) => {
     await addFeature(description, options);
   });
+
+feat
+  .command("edit <featId> <description>")
+  .description("Edit feature description")
+  .action(editDescription);
 
 feat
   .command("list [featId]")

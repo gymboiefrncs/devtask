@@ -35,6 +35,9 @@ const stmts = {
   setStatus: db.prepare<[number, number], FeatureRunResult>(
     "UPDATE features SET is_focused = 0, status = 'done' WHERE id = ? AND project_id = ?",
   ),
+  edit: db.prepare<[string, number, number], FeatureRunResult>(
+    "UPDATE features SET description = ? WHERE id = ? AND project_id = ?",
+  ),
   delete: db.prepare("DELETE FROM features WHERE id = ?"),
 };
 
@@ -125,6 +128,12 @@ export const setStatusDone = (
   featId: number,
   projectId: number,
 ): FeatureRunResult => stmts.setStatus.run(featId, projectId);
+
+export const updateDescription = (
+  description: string,
+  featId: number,
+  projectId: number,
+): FeatureRunResult => stmts.edit.run(description, featId, projectId);
 
 // =============
 // DELETE QUERY

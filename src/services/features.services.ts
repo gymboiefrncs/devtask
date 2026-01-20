@@ -13,6 +13,7 @@ import {
   setStatusDone,
   deleteFeat,
   insertNotes,
+  updateDescription,
 } from "../db/queries/features.js";
 import type { Projects, Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
@@ -215,6 +216,30 @@ export const addNotesService = (
     return { success: false, error: new Error(projectId.error.message) };
 
   const res = handleError(() => insertNotes(notes, idRes, projectId.data.id));
+  if (!res.success)
+    return { success: false, error: new Error(res.error.message) };
+  if (!res.data.changes)
+    return {
+      success: false,
+      error: new Error(`No feature found with id ${featId}`),
+    };
+  return res;
+};
+
+export const updateDescriptionService = (
+  description: string,
+  featId: string,
+) => {
+  const idRes = ensureValidId(featId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
+
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
+
+  const res = handleError(() =>
+    updateDescription(description, idRes, projectId.data.id),
+  );
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
   if (!res.data.changes)
