@@ -4,106 +4,60 @@ import {
 } from "../../services/features.services.js";
 import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
-import type { Feature } from "../../types/Features.js";
+import type { Feature, ListOptions } from "../../types/Features.js";
 
-export const listFeatures = (
-  featId: string,
-  options: {
-    all?: boolean;
-    todo?: boolean;
-    done?: boolean;
-    focus?: boolean;
-    unfocus?: boolean;
-  },
-) => {
-  const statusColors = {
+export const listFeatures = (featId: string, options: ListOptions): void => {
+  const statusColors: Record<string, (str: string) => string> = {
     todo: chalk.blue,
     in_progress: chalk.yellow,
     done: chalk.green,
   };
-  if (featId) {
-    const feature = listFeatureService(featId);
-    if (!feature.success) {
-      console.error(feature.error.message);
-      process.exitCode = 1;
-      return;
-    }
-    const colorFn = statusColors[feature.data.status];
 
-    console.log(
-      `${chalk.yellow(`ID: ${feature.data.id}`)} - ${chalk.blue(feature.data.description)}
-    Status: ${colorFn(feature.data.status)}
-    Created at: ${formatDate(feature.data.created_at)}
-    Focus: ${feature.data.is_focused === 1 ? chalk.green("Yes") : "No"}
-  
-    Notes: ${feature.data.notes ?? "No notes"}
-  
-    ${"=".repeat(50)}  
-    `,
-    );
-    return;
-  }
+  const printFeat = (f: Feature) => {
+    const color = statusColors[f.status] || chalk.white;
+    console.log(`${chalk.yellow(`ID: ${f.id}`)} - ${chalk.blue(f.description)}
+    Status: ${color(f.status)}
+    Created at: ${formatDate(f.created_at)}
+    Focus: ${f.is_focused ? chalk.green("Yes") : "No"}
+    Notes: ${f.notes ?? "No notes"}\n${"=".repeat(50)}`);
+  };
 
-  const features = listAllFeaturesService();
-  if (!features.success) {
-    console.error(features.error.message);
+  const res = featId ? listFeatureService(featId) : listAllFeaturesService();
+
+  if (!res.success) {
+    console.error(res.error.message);
     process.exitCode = 1;
     return;
   }
 
-  if (!features.data.length) {
-    console.log("No features found for this project!");
+  // if res.data is not an array then its a sinlge feature
+  if (!Array.isArray(res.data)) {
+    printFeat(res.data);
     return;
   }
 
-  let dataToDisplay: Feature[];
-  let label: string;
+  // look-up table
+  const filters: Record<keyof ListOptions, (f: Feature) => boolean> = {
+    all: () => true,
+    todo: (f) => f.status === "todo",
+    done: (f) => f.status === "done",
+    focus: (f) => !!f.is_focused,
+    unfocus: (f) => !f.is_focused,
+  };
 
-  if (options.all) {
-    dataToDisplay = features.data;
-    label = "";
-  } else if (options.todo) {
-    dataToDisplay = features.data.filter(
-      (feature) => feature.status === "todo",
-    );
-    label = "todo";
-  } else if (options.done) {
-    dataToDisplay = features.data.filter(
-      (feature) => feature.status === "done",
-    );
-    label = "done";
-  } else if (options.focus) {
-    dataToDisplay = features.data.filter((feature) => feature.is_focused);
-    label = "focused";
-  } else if (options.unfocus) {
-    dataToDisplay = features.data.filter((feature) => !feature.is_focused);
-    label = "unfocused";
-  } else {
-    dataToDisplay = features.data.filter(
-      (feature) => feature.status === "in_progress",
-    );
-    label = "in-progress";
-  }
+  // find which option is passed by the user
+  const activeKey = (Object.keys(filters) as Array<keyof ListOptions>).find(
+    (k) => options[k],
+  );
+
+  const dataToDisplay = activeKey
+    ? res.data.filter(filters[activeKey])
+    : res.data.filter((f) => f.status === "in_progress");
 
   if (!dataToDisplay.length) {
-    console.log(`No ${label} feature!`);
+    console.log(`No ${activeKey || "in-progress"} features found!`);
+    return;
   }
 
-  // look up colors for status
-
-  dataToDisplay.forEach((feature) => {
-    const colorFn = statusColors[feature.status];
-
-    console.log(
-      `${chalk.yellow(`ID: ${feature.id}`)} - ${chalk.blue(feature.description)}
-  Status: ${colorFn(feature.status)}
-  Created at: ${formatDate(feature.created_at)}
-  Focus: ${feature.is_focused === 1 ? chalk.green("Yes") : "No"}
-
-  Notes: ${feature.notes ?? "No notes"}
-
-  ${"=".repeat(50)}  
-  `,
-    );
-  });
+  dataToDisplay.forEach(printFeat);
 };

@@ -35,6 +35,7 @@ export const listFeatureService = (featId: string): Result<Feature> => {
   const result = handleError(() =>
     getFeature(validatedId, activeProject.data.id),
   );
+
   if (!result.success) return { success: false, error: result.error };
   if (!result.data)
     return { success: false, error: new Error("No feature found!") };
@@ -53,7 +54,7 @@ export const listAllFeaturesService = (): Result<Feature[]> => {
   return result;
 };
 
-export const getUnfocusedFeatures = (): Result<Feature[]> => {
+export const getUnfocusedFeaturesService = (): Result<Feature[]> => {
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
@@ -66,7 +67,7 @@ export const getUnfocusedFeatures = (): Result<Feature[]> => {
   return result;
 };
 
-export const getFocusedFeatures = (): Result<Feature[]> => {
+export const getFocusedFeaturesService = (): Result<Feature[]> => {
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
@@ -113,8 +114,10 @@ export const addMultipleFeatureService = (
       return { success: false, error: validDescription };
     sanitized.push(validDescription);
   }
+
   if (!sanitized.length)
     return { success: false, error: new Error("No features added") };
+
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
@@ -135,6 +138,10 @@ export const addNotesService = (
   if (validatedId instanceof Error)
     return { success: false, error: validatedId };
 
+  const validDescription: Error | string = validateFeatureDescription(notes);
+  if (validDescription instanceof Error)
+    return { success: false, error: new Error("Note cannot be empty") };
+
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
@@ -143,6 +150,7 @@ export const addNotesService = (
     insertNotes(notes, validatedId, activeProject.data.id),
   );
   if (!result.success) return { success: false, error: result.error };
+
   if (!result.data.changes)
     return {
       success: false,
@@ -184,6 +192,7 @@ export const focusMultipleFeaturesService = (
 ): Result<FeatureRunResult> => {
   const result = handleError(() => setMultipleFocus(featIds));
   if (!result.success) return { success: false, error: result.error };
+
   return result;
 };
 
@@ -192,6 +201,7 @@ export const unfocusMultipleFeaturesService = (
 ): Result<FeatureRunResult> => {
   const result = handleError(() => setUnfocus(featIds));
   if (!result.success) return { success: false, error: result.error };
+
   return result;
 };
 
@@ -209,6 +219,7 @@ export const markFeatureAsDoneService = (
   const result = handleError(() =>
     setStatusDone(validatedId, activeProject.data.id),
   );
+
   if (!result.success) return { success: false, error: result.error };
   if (!result.data.changes)
     return {
@@ -227,13 +238,19 @@ export const updateDescriptionService = (
   if (validatedId instanceof Error)
     return { success: false, error: validatedId };
 
+  const validDescription: Error | string =
+    validateFeatureDescription(description);
+  if (validDescription instanceof Error)
+    return { success: false, error: validDescription };
+  console.log(validDescription);
+
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
-
   const result = handleError(() =>
-    updateDescription(description, validatedId, activeProject.data.id),
+    updateDescription(validDescription, validatedId, activeProject.data.id),
   );
+
   if (!result.success) return { success: false, error: result.error };
   if (!result.data.changes)
     return {

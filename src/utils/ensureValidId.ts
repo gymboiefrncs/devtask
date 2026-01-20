@@ -1,8 +1,9 @@
-export const ensureValidId = (projectId: string | number): number | Error => {
-  if (typeof projectId === "number") return projectId;
+export const ensureValidId = (id: string | number): number | Error => {
+  if (!id) return new Error("Id is required");
+  if (typeof id === "number") return id;
 
-  const id = Number(projectId);
-  if (isNaN(id) || id <= 0) return new Error("Invalid id");
+  const idNum = Number(id);
+  if (isNaN(idNum) || idNum <= 0) return new Error("Invalid id");
 
-  return id;
+  return idNum;
 };

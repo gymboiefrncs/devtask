@@ -25,5 +25,6 @@ export const markAsDone = (featId: string) => {
     return;
   }
 
+  // update project status if all features are done
   updateProjectStatus(features.data);
 };

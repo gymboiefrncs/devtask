@@ -7,5 +7,5 @@ export const editDescription = (featId: string, description: string) => {
     process.exitCode = 1;
     return;
   }
-  console.log(`Project ${featId} name updated to: '${description}'`);
+  console.log(`Feature ${featId} description updated to: '${description}'`);
 };

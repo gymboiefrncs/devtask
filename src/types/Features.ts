@@ -14,3 +14,11 @@ export type FeatureRunResult = {
   changes: number;
   lastInsertRowid: number | bigint;
 };
+
+export type ListOptions = {
+  all?: boolean;
+  todo?: boolean;
+  done?: boolean;
+  focus?: boolean;
+  unfocus?: boolean;
+};

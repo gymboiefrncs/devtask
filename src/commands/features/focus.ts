@@ -1,8 +1,8 @@
 import {
   focusFeatureService,
   focusMultipleFeaturesService,
-  getUnfocusedFeatures,
-  getFocusedFeatures,
+  getUnfocusedFeaturesService,
+  getFocusedFeaturesService,
   unfocusMultipleFeaturesService,
 } from "../../services/features.services.js";
 import {
@@ -15,7 +15,7 @@ export const focusFeature = async (
   options: { many?: boolean },
 ) => {
   if (options.many) {
-    const features = getUnfocusedFeatures();
+    const features = getUnfocusedFeaturesService();
     if (!features.success) {
       console.error(features.error.message);
       process.exitCode = 1;
@@ -49,7 +49,7 @@ export const focusFeature = async (
 };
 
 export const unfocusFeatures = async () => {
-  const features = getFocusedFeatures();
+  const features = getFocusedFeaturesService();
   if (!features.success) {
     console.error(features.error.message);
     process.exitCode = 1;
@@ -58,7 +58,7 @@ export const unfocusFeatures = async () => {
   const { data } = features;
   const feats = await promptUnfocusMultipleFeatures(data);
   if (!feats) {
-    console.log("No feature left to focus");
+    console.log("No feature left to unfocus");
     return;
   }
 

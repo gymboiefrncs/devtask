@@ -69,7 +69,7 @@ feat
   });
 
 feat
-  .command("edit <featId> <description>")
+  .command("edit [featId] [description]")
   .description("Edit feature description")
   .action(editDescription);
 
@@ -97,7 +97,7 @@ feat
   .action(async () => await unfocusFeatures());
 
 feat
-  .command("done <featId>")
+  .command("done [featId]")
   .description("Mark feature as done")
   .action(markAsDone);
 
@@ -107,7 +107,7 @@ feat
   .action(async () => await removeFeature());
 
 feat
-  .command("notes <featId> <desc>")
+  .command("notes [featId] [notes]")
   .description("Add notes for features")
   .action(addNotes);
 
