@@ -26,8 +26,7 @@ export const initializeProjectService = (
 // Service to list all projects
 export const getProjectsService = (): Result<Projects[], Error> => {
   const res = handleError(() => queries.getAllProjects());
-  if (!res.success)
-    return { success: false, error: new Error(res.error.message) };
+  if (!res.success) return { success: false, error: res.error };
 
   return res;
 };
@@ -45,8 +44,7 @@ export const switchProjectService = (
     return { success: false, error: new Error("Project not found") };
 
   const res = handleError(() => queries.setActiveProject(idRes));
-  if (!res.success)
-    return { success: false, error: new Error(res.error.message) };
+  if (!res.success) return { success: false, error: res.error };
 
   return res;
 };
@@ -54,8 +52,7 @@ export const switchProjectService = (
 // Service to get the current project
 export const getCurrentProjectService = (): Result<Projects, Error> => {
   const res = handleError(() => queries.getActiveProject());
-  if (!res.success)
-    return { success: false, error: new Error(res.error.message) };
+  if (!res.success) return { success: false, error: res.error };
   if (!res.data)
     return { success: false, error: new Error("No active project found") };
 
@@ -85,8 +82,7 @@ export const removeProjectService = (
     };
 
   const res = handleError(() => queries.deleteProject(idRes));
-  if (!res.success)
-    return { success: false, error: new Error(res.error.message) };
+  if (!res.success) return { success: false, error: res.error };
   if (!res.data.changes)
     return { success: false, error: new Error("Project not found") };
 
@@ -106,8 +102,7 @@ export const updateProjectNameService = (
   if (error) return { success: false, error };
 
   const res = handleError(() => queries.updateProjectName(name, idRes));
-  if (!res.success)
-    return { success: false, error: new Error(res.error.message) };
+  if (!res.success) return { success: false, error: res.error };
 
   return res;
 };
