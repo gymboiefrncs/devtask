@@ -22,22 +22,22 @@ export const listFeatures = (featId: string, options: ListOptions): void => {
     Notes: ${f.notes ?? "No notes"}\n${"=".repeat(50)}`);
   };
 
-  const res = featId ? listFeatureService(featId) : listAllFeaturesService();
+  const result = featId ? listFeatureService(featId) : listAllFeaturesService();
 
-  if (!res.success) {
-    console.error(res.error.message);
+  if (!result.success) {
+    console.error(result.error.message);
     process.exitCode = 1;
     return;
   }
 
   // if res.data is not an array then its a sinlge feature
-  if (!Array.isArray(res.data)) {
-    printFeat(res.data);
+  if (!Array.isArray(result.data)) {
+    printFeat(result.data);
     return;
   }
 
   // look-up table
-  const filters: Record<keyof ListOptions, (f: Feature) => boolean> = {
+  const callbacks: Record<keyof ListOptions, (f: Feature) => boolean> = {
     all: () => true,
     todo: (f) => f.status === "todo",
     done: (f) => f.status === "done",
@@ -46,16 +46,16 @@ export const listFeatures = (featId: string, options: ListOptions): void => {
   };
 
   // find which option is passed by the user
-  const activeKey = (Object.keys(filters) as Array<keyof ListOptions>).find(
+  const option = (Object.keys(callbacks) as Array<keyof ListOptions>).find(
     (k) => options[k],
   );
 
-  const dataToDisplay = activeKey
-    ? res.data.filter(filters[activeKey])
-    : res.data.filter((f) => f.status === "in_progress");
+  const dataToDisplay = option
+    ? result.data.filter(callbacks[option])
+    : result.data.filter((f) => f.status === "in_progress");
 
   if (!dataToDisplay.length) {
-    console.log(`No ${activeKey || "in-progress"} features found!`);
+    console.log(`No ${option || "in-progress"} features found!`);
     return;
   }
 

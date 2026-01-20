@@ -15,32 +15,32 @@ export const focusFeature = async (
   options: { many?: boolean },
 ) => {
   if (options.many) {
-    const features = getUnfocusedFeaturesService();
-    if (!features.success) {
-      console.error(features.error.message);
+    const unfocusedFeatures = getUnfocusedFeaturesService();
+    if (!unfocusedFeatures.success) {
+      console.error(unfocusedFeatures.error.message);
       process.exitCode = 1;
       return;
     }
-    const { data } = features;
-    const feats = await promptFocusMultipleFeatures(data);
-    if (!feats) {
+    const { data } = unfocusedFeatures;
+    const ids = await promptFocusMultipleFeatures(data);
+    if (!ids) {
       console.log("No feature left to focus");
       return;
     }
 
-    const res = focusMultipleFeaturesService(feats);
-    if (!res.success) {
-      console.error(res.error.message);
+    const result = focusMultipleFeaturesService(ids);
+    if (!result.success) {
+      console.error(result.error.message);
       process.exitCode = 1;
       return;
     }
 
-    console.log(`(${res.data.changes}) is focused`);
+    console.log(`(${result.data.changes}) is focused`);
   } else {
-    const feature = focusFeatureService(featId);
+    const focusedFeatures = focusFeatureService(featId);
 
-    if (!feature.success) {
-      console.error(feature.error.message);
+    if (!focusedFeatures.success) {
+      console.error(focusedFeatures.error.message);
       process.exitCode = 1;
       return;
     }
@@ -49,24 +49,24 @@ export const focusFeature = async (
 };
 
 export const unfocusFeatures = async () => {
-  const features = getFocusedFeaturesService();
-  if (!features.success) {
-    console.error(features.error.message);
+  const focusedFeatures = getFocusedFeaturesService();
+  if (!focusedFeatures.success) {
+    console.error(focusedFeatures.error.message);
     process.exitCode = 1;
     return;
   }
-  const { data } = features;
-  const feats = await promptUnfocusMultipleFeatures(data);
-  if (!feats) {
+  const { data } = focusedFeatures;
+  const ids = await promptUnfocusMultipleFeatures(data);
+  if (!ids) {
     console.log("No feature left to unfocus");
     return;
   }
 
-  const res = unfocusMultipleFeaturesService(feats);
-  if (!res.success) {
-    console.error(res.error.message);
+  const result = unfocusMultipleFeaturesService(ids);
+  if (!result.success) {
+    console.error(result.error.message);
     process.exitCode = 1;
     return;
   }
-  console.log(`Unfocused (${res.data.changes}) features`);
+  console.log(`Unfocused (${result.data.changes}) features`);
 };

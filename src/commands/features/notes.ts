@@ -1,9 +1,9 @@
 import { addNotesService } from "../../services/features.services.js";
 
 export const addNotes = (featId: string, notes: string) => {
-  const note = addNotesService(notes, featId);
-  if (!note.success) {
-    console.error(note.error.message);
+  const result = addNotesService(notes, featId);
+  if (!result.success) {
+    console.error(result.error.message);
     process.exitCode = 1;
     return;
   }

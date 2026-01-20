@@ -5,9 +5,9 @@ import {
 import { updateProjectStatus } from "../../utils/updateProjectStatus.js";
 
 export const markAsDone = (featId: string) => {
-  const res = markFeatureAsDoneService(featId);
-  if (!res.success) {
-    console.error(res.error.message);
+  const result = markFeatureAsDoneService(featId);
+  if (!result.success) {
+    console.error(result.error.message);
     process.exitCode = 1;
     return;
   }
@@ -25,6 +25,6 @@ export const markAsDone = (featId: string) => {
     return;
   }
 
-  // update project status if all features are done
+  // update project status if all features are don
   updateProjectStatus(features.data);
 };
