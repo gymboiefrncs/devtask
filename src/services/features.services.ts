@@ -32,6 +32,24 @@ export const checkActiveProjectExistService = (): Result<Projects> => {
   return { success: true, data: projectData };
 };
 
+export const listFeatureService = (featId: string): Result<Feature> => {
+  const idRes = ensureValidId(featId);
+  if (idRes instanceof Error) return { success: false, error: idRes };
+
+  const projectId = activeprojectExist();
+  if (!projectId.success)
+    return { success: false, error: new Error(projectId.error.message) };
+
+  const feature = handleError(() => getFeature(idRes, projectId.data.id));
+  if (!feature.success)
+    return { success: false, error: new Error(feature.error.message) };
+  const featureData = feature.data;
+  if (!featureData)
+    return { success: false, error: new Error("No feature found!") };
+
+  return { success: true, data: featureData };
+};
+
 export const listAllFeaturesService = (): Result<Feature[]> => {
   const activeProject = handleError(() => getActiveProject());
   if (!activeProject.success)
@@ -90,13 +108,6 @@ export const focusFeatureService = (
 ): Result<FeatureRunResult> => {
   const idRes = ensureValidId(featId);
   if (idRes instanceof Error) return { success: false, error: idRes };
-
-  const feature = handleError(() => getFeature(idRes));
-  if (!feature.success)
-    return { success: false, error: new Error(feature.error.message) };
-  const featureData = feature.data;
-  if (!featureData)
-    return { success: false, error: new Error("No feature found!") };
 
   const projectId = activeprojectExist();
   if (!projectId.success)

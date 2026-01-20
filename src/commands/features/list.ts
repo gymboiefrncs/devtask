@@ -1,9 +1,43 @@
-import { listAllFeaturesService } from "../../services/features.services.js";
+import {
+  listAllFeaturesService,
+  listFeatureService,
+} from "../../services/features.services.js";
 import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
 import type { Feature } from "../../types/Features.js";
 
-export const listFeatures = (options: { all?: boolean; todo?: boolean }) => {
+export const listFeatures = (
+  featId: string,
+  options: { all?: boolean; todo?: boolean },
+) => {
+  const statusColors = {
+    todo: chalk.blue,
+    in_progress: chalk.yellow,
+    done: chalk.green,
+  };
+  if (featId) {
+    const feature = listFeatureService(featId);
+    if (!feature.success) {
+      console.error(feature.error.message);
+      process.exitCode = 1;
+      return;
+    }
+    const colorFn = statusColors[feature.data.status];
+
+    console.log(
+      `${chalk.yellow(`ID: ${feature.data.id}`)} - ${chalk.blue(feature.data.description)}
+    Status: ${colorFn(feature.data.status)}
+    Created at: ${formatDate(feature.data.created_at)}
+    Focus: ${feature.data.is_focused === 1 ? chalk.green("Yes") : "No"}
+  
+    Notes: ${feature.data.notes ?? "No notes"}
+  
+    ${"=".repeat(50)}  
+    `,
+    );
+    return;
+  }
+
   const features = listAllFeaturesService();
   if (!features.success) {
     console.error(features.error.message);
@@ -39,11 +73,6 @@ export const listFeatures = (options: { all?: boolean; todo?: boolean }) => {
   }
 
   // look up colors for status
-  const statusColors = {
-    todo: chalk.blue,
-    in_progress: chalk.yellow,
-    done: chalk.green,
-  };
 
   dataToDisplay.forEach((feature) => {
     const colorFn = statusColors[feature.status];

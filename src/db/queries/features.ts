@@ -5,8 +5,8 @@ const stmts = {
   getAllFeatures: db.prepare<[number], Feature>(
     "SELECT * from features WHERE project_id = ?",
   ),
-  getFeature: db.prepare<[number], Feature>(
-    "SELECT * from features WHERE id = ?",
+  getFeature: db.prepare<[number, number], Feature>(
+    "SELECT * from features WHERE id = ? AND project_id = ?",
   ),
   getAllUnfocus: db.prepare<[number], Feature>(
     "SELECT * from features WHERE project_id = ? and  is_focused = 0",
@@ -44,8 +44,10 @@ const stmts = {
 export const getAllFeatures = (projectId: number): Feature[] =>
   stmts.getAllFeatures.all(projectId);
 
-export const getFeature = (featId: number): Feature | undefined =>
-  stmts.getFeature.get(featId);
+export const getFeature = (
+  featId: number,
+  projectId: number,
+): Feature | undefined => stmts.getFeature.get(featId, projectId);
 
 export const getAllUnfocusedFeatures = (projectId: number): Feature[] =>
   stmts.getAllUnfocus.all(projectId);

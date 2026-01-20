@@ -68,7 +68,7 @@ feat
   });
 
 feat
-  .command("list")
+  .command("list [featId]")
   .description("List in-progress feature of the active project")
   .option("-a, --all", "List all feature of the active project")
   .option("-t, --todo", "List todo features of the active project")
