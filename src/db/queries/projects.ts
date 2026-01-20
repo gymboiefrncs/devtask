@@ -7,7 +7,7 @@ const stmts = {
     "SELECT * FROM projects WHERE id = ? LIMIT 1",
   ),
   getActive: db.prepare<[], Projects>(
-    "SELECT * FROM projects WHERE status = ? LIMIT 1",
+    "SELECT * FROM projects WHERE status = 'active' LIMIT 1",
   ),
   getAll: db.prepare<[], Projects>("SELECT * FROM projects"),
   add: db.prepare<[string, string], Projects>(
@@ -49,7 +49,7 @@ export const getAllProjects = (): Projects[] => stmts.getAll.all();
 export const addProject = (projectName: string): Projects => {
   const active = getActiveProject();
   const initial = active ? "inactive" : "active";
-  console.log("Params:", { projectName, initial });
+
   return stmts.add.get(projectName, initial)!;
 };
 
