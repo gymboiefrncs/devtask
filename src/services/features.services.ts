@@ -29,11 +29,10 @@ export const listFeatureService = (featId: string): Result<Feature> => {
 
   const feature = handleError(() => getFeature(idRes, projectId.data.id));
   if (!feature.success) return { success: false, error: feature.error };
-  const featureData = feature.data;
-  if (!featureData)
+  if (!feature.data)
     return { success: false, error: new Error("No feature found!") };
 
-  return { success: true, data: featureData };
+  return { success: true, data: feature.data };
 };
 
 export const listAllFeaturesService = (): Result<Feature[]> => {
@@ -57,7 +56,7 @@ export const addFeatureService = (
   const projectId = activeprojectExist();
   if (!projectId.success) return { success: false, error: projectId.error };
 
-  const res = handleError(() => insertFeature(description, projectId.data.id));
+  const res = handleError(() => insertFeature(desc, projectId.data.id));
   if (!res.success) return { success: false, error: res.error };
 
   return res;
@@ -66,15 +65,19 @@ export const addFeatureService = (
 export const addMultipleFeatureService = (
   description: string[],
 ): Result<FeatureRunResult> => {
-  for (const desc of description) {
-    const error = validateFeatureDescription(desc.trim());
+  const trimmed: string[] = [];
+
+  for (const rawDesc of description) {
+    const desc = rawDesc.trim();
+    const error = validateFeatureDescription(desc);
     if (error) return { success: false, error };
+    trimmed.push(desc);
   }
 
   const projectId = activeprojectExist();
   if (!projectId.success) return { success: false, error: projectId.error };
 
-  const res = handleError(() => batchInsert(description, projectId.data.id));
+  const res = handleError(() => batchInsert(trimmed, projectId.data.id));
   if (!res.success) return { success: false, error: res.error };
   return res;
 };
