@@ -1,9 +1,9 @@
 import { removeProjectService } from "../../services/projects.services.js";
 
 export const removeProject = (projectId: string): void => {
-  const res = removeProjectService(projectId);
-  if (!res.success) {
-    console.error(res.error.message);
+  const removeResult = removeProjectService(projectId);
+  if (!removeResult.success) {
+    console.error(removeResult.error.message);
     process.exitCode = 1;
     return;
   }

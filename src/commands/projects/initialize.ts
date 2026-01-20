@@ -7,19 +7,19 @@ export const initializeProject = (
   projectName: string,
   options: { switch: boolean },
 ): void => {
-  const newProject = initializeProjectService(projectName);
-  if (!newProject.success) {
-    console.error(newProject.error.message);
+  const addResult = initializeProjectService(projectName);
+  if (!addResult.success) {
+    console.error(addResult.error.message);
     process.exitCode = 1;
     return;
   }
 
   if (options.switch) {
-    const newActiverProject = switchProjectService(newProject.data.id);
+    const switchResult = switchProjectService(addResult.data.id);
     console.log(`Switched to newly created project: ${projectName}`);
 
-    if (!newActiverProject.success) {
-      console.error(newActiverProject.error);
+    if (!switchResult.success) {
+      console.error(switchResult.error);
       process.exitCode = 1;
       return;
     }

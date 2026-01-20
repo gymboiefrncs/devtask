@@ -3,23 +3,23 @@ import chalk from "chalk";
 import { formatDate } from "../../utils/formatDate.js";
 
 export const getCurrentProject = (): void => {
-  const currentProject = getCurrentProjectService();
-  if (!currentProject.success) {
-    console.error(currentProject.error.message);
+  const projectResult = getCurrentProjectService();
+  if (!projectResult.success) {
+    console.error(projectResult.error.message);
     process.exitCode = 1;
     return;
   }
 
   console.log(
-    `${chalk.yellow(`ID: ${currentProject.data.id}`)} - ${chalk.blue(
-      currentProject.data.name,
+    `${chalk.yellow(`ID: ${projectResult.data.id}`)} - ${chalk.blue(
+      projectResult.data.name,
     )}
   Status: ${
-    currentProject.data.status === "active"
-      ? chalk.green(currentProject.data.status)
-      : chalk.red(currentProject.data.status)
+    projectResult.data.status === "active"
+      ? chalk.green(projectResult.data.status)
+      : chalk.red(projectResult.data.status)
   }
-  Created at: ${formatDate(currentProject.data.created_at)}
+  Created at: ${formatDate(projectResult.data.created_at)}
 `,
   );
 };

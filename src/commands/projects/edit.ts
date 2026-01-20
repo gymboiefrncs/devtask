@@ -1,9 +1,9 @@
 import { updateProjectNameService } from "../../services/projects.services.js";
 
 export const editProject = (projectId: string, name: string) => {
-  const updatedProject = updateProjectNameService(name, projectId);
-  if (!updatedProject.success) {
-    console.error(updatedProject.error.message);
+  const updateResult = updateProjectNameService(name, projectId);
+  if (!updateResult.success) {
+    console.error(updateResult.error.message);
     process.exitCode = 1;
     return;
   }
