@@ -108,13 +108,13 @@ export const addMultipleFeatureService = (
   const sanitized: string[] = [];
 
   for (const raw of description) {
-    const desc = raw.trim();
-    const validDescription: Error | string = validateFeatureDescription(desc);
+    const validDescription: Error | string = validateFeatureDescription(raw);
     if (validDescription instanceof Error)
       return { success: false, error: validDescription };
-    sanitized.push(desc);
+    sanitized.push(validDescription);
   }
-
+  if (!sanitized.length)
+    return { success: false, error: new Error("No features added") };
   const activeProject = activeprojectExist();
   if (!activeProject.success)
     return { success: false, error: activeProject.error };
@@ -123,6 +123,7 @@ export const addMultipleFeatureService = (
     batchInsert(sanitized, activeProject.data.id),
   );
   if (!result.success) return { success: false, error: result.error };
+
   return result;
 };
 
