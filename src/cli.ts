@@ -72,6 +72,7 @@ feat
   .description("List in-progress feature of the active project")
   .option("-a, --all", "List all feature of the active project")
   .option("-t, --todo", "List todo features of the active project")
+  .option("-d, --done", "List done features of the active project")
   .action(listFeatures);
 
 feat

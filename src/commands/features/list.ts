@@ -8,7 +8,7 @@ import type { Feature } from "../../types/Features.js";
 
 export const listFeatures = (
   featId: string,
-  options: { all?: boolean; todo?: boolean },
+  options: { all?: boolean; todo?: boolean; done?: boolean },
 ) => {
   const statusColors = {
     todo: chalk.blue,
@@ -61,6 +61,11 @@ export const listFeatures = (
       (feature) => feature.status === "todo",
     );
     label = "todo";
+  } else if (options.done) {
+    dataToDisplay = features.data.filter(
+      (feature) => feature.status === "done",
+    );
+    label = "done";
   } else {
     dataToDisplay = features.data.filter(
       (feature) => feature.status === "in_progress",
