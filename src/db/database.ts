@@ -10,4 +10,5 @@ const DB_PATH = path.join(DB_DIR, ".devtask.sqlite");
 if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
 
 export const db: DatabaseType = new Database(DB_PATH);
+db.pragma("journal_mode = WAL");
 initializeSchema(db);

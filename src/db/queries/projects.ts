@@ -1,75 +1,81 @@
 import { db } from "../database.js";
 import type { ProjectRunResult, Projects } from "../../types/Projects.js";
 
-export const getProject = (projectId: number): Projects | undefined => {
-  return db
-    .prepare<[number], Projects>("SELECT * FROM projects WHERE id = ? LIMIT 1")
-    .get(projectId);
+// look up for optimization
+const stmts = {
+  getProject: db.prepare<[number], Projects>(
+    "SELECT * FROM projects WHERE id = ? LIMIT 1",
+  ),
+  getActive: db.prepare<[], Projects>(
+    "SELECT * FROM projects WHERE status = ? LIMIT 1",
+  ),
+  getAll: db.prepare<[], Projects>("SELECT * FROM projects"),
+  add: db.prepare<[string, string], Projects>(
+    "INSERT INTO projects (name, status) VALUES (?, ?) RETURNING *",
+  ),
+  setAllInactive: db.prepare<[], ProjectRunResult>(
+    "UPDATE projects SET status = 'inactive' WHERE status = 'active'",
+  ),
+  setStatus: db.prepare<[string, number], Projects>(
+    "UPDATE projects SET status = ? WHERE id = ? RETURNING *",
+  ),
+  updateName: db.prepare<[string, number], ProjectRunResult>(
+    "UPDATE projects SET name = ? WHERE id = ?",
+  ),
+  delete: db.prepare<[number], ProjectRunResult>(
+    "DELETE FROM projects WHERE id = ?",
+  ),
+  updateStatus: db.prepare<[string, number], ProjectRunResult>(
+    "UPDATE projects SET status = ? WHERE id = ?",
+  ),
 };
 
+// ==============
+// GET QUERIES
+// ==============
+export const getProject = (projectId: number): Projects | undefined =>
+  stmts.getProject.get(projectId);
+
 export const getActiveProject = (): Projects | undefined => {
-  const activeProject = db
-    .prepare<
-      [],
-      Projects
-    >("SELECT * FROM projects WHERE status = 'active' LIMIT 1")
-    .get();
+  const activeProject = stmts.getActive.get();
   return activeProject;
 };
 
-export const getAllProjects = (): Projects[] => {
-  return db.prepare<[], Projects>("SELECT * FROM projects").all();
-};
+export const getAllProjects = (): Projects[] => stmts.getAll.all();
 
+// ============
+// ADD QUERY
+// ============
 export const addProject = (projectName: string): Projects => {
   const active = getActiveProject();
   const initial = active ? "inactive" : "active";
-  const result = db
-    .prepare<
-      [string, string],
-      Projects
-    >("INSERT INTO projects (name, status) VALUES (?, ?) RETURNING *")
-    .get(projectName, initial);
-
-  return result!;
+  console.log("Params:", { projectName, initial });
+  return stmts.add.get(projectName, initial)!;
 };
 
-export const setActiveProject = (projectId: number): Projects => {
-  const setInactive = db.prepare(
-    "UPDATE projects SET status = 'inactive' WHERE status = 'active'",
-  );
+// ===============
+// UPDATE QUERIES
+// ================
+const performSwitch = db.transaction((id: number) => {
+  stmts.setAllInactive.run();
+  return stmts.setStatus.get("active", id);
+});
 
-  const setActive = db.prepare<[string, number], Projects>(
-    "UPDATE projects SET status = ? WHERE id = ? RETURNING *",
-  );
+export const setActiveProject = (projectId: number): Projects =>
+  performSwitch(projectId)!;
 
-  const performSwitch = db.transaction((id: number) => {
-    setInactive.run();
-    const result = setActive.get("active", id);
-    return result;
-  });
+export const updateProject = (
+  status: "done" | "active",
+  projectId: number,
+): ProjectRunResult => stmts.updateStatus.run(status, projectId);
 
-  return performSwitch(projectId)!;
-};
-
-export const deleteProject = (projectId: number) => {
-  return db.prepare("DELETE FROM projects WHERE id = ?").run(projectId);
-};
-
-export const updateProject = (status: "done" | "active", projectId: number) => {
-  db.prepare<[string, number], void>(
-    "UPDATE projects SET status = ? WHERE id = ?",
-  ).run(status, projectId);
-};
-
-export const updateProjectDescription = (
+export const updateProjectName = (
   projectName: string,
   projectId: number,
-): ProjectRunResult => {
-  return db
-    .prepare<
-      [string, number],
-      ProjectRunResult
-    >("UPDATE projects SET name = ? WHERE id = ?")
-    .run(projectName, projectId);
-};
+): ProjectRunResult => stmts.updateName.run(projectName, projectId);
+
+// ==============
+// DELETE QUERY
+// ==============
+export const deleteProject = (projectId: number): ProjectRunResult =>
+  stmts.delete.run(projectId);

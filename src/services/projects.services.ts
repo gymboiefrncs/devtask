@@ -105,7 +105,7 @@ export const updateProjectNameService = (
   const error = validateProjectName(name);
   if (error) return { success: false, error };
 
-  const res = handleError(() => queries.updateProjectDescription(name, idRes));
+  const res = handleError(() => queries.updateProjectName(name, idRes));
   if (!res.success)
     return { success: false, error: new Error(res.error.message) };
 

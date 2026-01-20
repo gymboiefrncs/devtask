@@ -5,11 +5,11 @@ import {
 
 export const initializeProject = (
   projectName: string,
-  options: { switch: boolean }
+  options: { switch: boolean },
 ): void => {
   const newProject = initializeProjectService(projectName);
   if (!newProject.success) {
-    console.error(newProject.error.message);
+    console.error(newProject.error);
     process.exitCode = 1;
     return;
   }
