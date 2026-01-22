@@ -8,23 +8,24 @@ export const initializeProject = (
   options: { switch: boolean },
 ): void => {
   const addResult = initializeProjectService(projectName);
-  if (!addResult.success) {
-    console.error(addResult.error.message);
+  if (!addResult.ok) {
+    console.error(addResult.err.message);
     process.exitCode = 1;
     return;
   }
 
   if (options.switch) {
     const switchResult = switchProjectService(addResult.data.id);
-    console.log(`Switched to newly created project: ${projectName}`);
-
-    if (!switchResult.success) {
-      console.error(switchResult.error.message);
+    if (!switchResult.ok) {
+      console.error(switchResult.err.message);
       process.exitCode = 1;
       return;
     }
+
+    console.log(`Switched project: '${switchResult.data.name}'`);
+
     return;
   }
 
-  console.log(`Project added: ${projectName}`);
+  console.log(`Project added: '${addResult.data.name}'`);
 };

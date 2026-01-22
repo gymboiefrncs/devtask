@@ -2,8 +2,8 @@ import { switchProjectService } from "../../services/projects.services.js";
 
 export const switchProject = (projectId: string): void => {
   const switchResult = switchProjectService(projectId);
-  if (!switchResult.success) {
-    console.error(switchResult.error.message);
+  if (!switchResult.ok) {
+    console.error(switchResult.err.message);
     process.exitCode = 1;
     return;
   }

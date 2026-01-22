@@ -4,8 +4,8 @@ import { formatDate } from "../../utils/formatDate.js";
 
 export const listProjects = (): void => {
   const projects = getProjectsService();
-  if (!projects.success) {
-    console.error(projects.error.message);
+  if (!projects.ok) {
+    console.error(projects.err.message);
     process.exitCode = 1;
     return;
   }

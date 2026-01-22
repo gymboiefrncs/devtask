@@ -19,8 +19,8 @@ const stmts = {
   setStatus: db.prepare<[string, number], Projects>(
     "UPDATE projects SET status = ? WHERE id = ? RETURNING *",
   ),
-  updateName: db.prepare<[string, number], ProjectRunResult>(
-    "UPDATE projects SET name = ? WHERE id = ?",
+  updateName: db.prepare<[string, number], Projects>(
+    "UPDATE projects SET name = ? WHERE id = ? RETURNING *",
   ),
   delete: db.prepare<[number], ProjectRunResult>(
     "DELETE FROM projects WHERE id = ?",
@@ -72,7 +72,7 @@ export const updateProject = (
 export const updateProjectName = (
   projectName: string,
   projectId: number,
-): ProjectRunResult => stmts.updateName.run(projectName, projectId);
+): Projects => stmts.updateName.get(projectName, projectId)!;
 
 // ==============
 // DELETE QUERY
