@@ -16,6 +16,7 @@ import { addNotes } from "./commands/features/notes.js";
 import { editProject } from "./commands/projects/edit.js";
 import { db } from "./db/database.js";
 import { editDescription } from "./commands/features/edit.js";
+import { addTasks } from "./commands/tasks/add.js";
 const program = new Command();
 
 // projects commands
@@ -110,6 +111,16 @@ feat
   .command("notes [featId] [notes]")
   .description("Add notes for features")
   .action(addNotes);
+
+// tasks commands
+const task = program.command("task").description("Task commands");
+
+task
+  .command("add")
+  .description("Add tasks to a feature")
+  .action(async () => {
+    await addTasks();
+  });
 
 await program.parseAsync();
 db.close();

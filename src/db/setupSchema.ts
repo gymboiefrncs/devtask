@@ -22,9 +22,20 @@ export const initializeSchema = (db: Database) => {
         FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
       );
 
+      CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        feature_id INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        status TEXT CHECK(status IN ('todo', 'in_progress', 'done')) DEFAULT 'todo',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (feature_id) REFERENCES features(id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
       CREATE INDEX IF NOT EXISTS idx_features_project_id ON features(project_id);
       CREATE INDEX IF NOT EXISTS idx_features_status ON features(status);
-      CREATE INDEX IF NOT EXISTS idx_features_is_focused ON features(is_focused);
+      CREATE INDEX IF NOT EXISTS idx_features_project_focused ON features(project_id, is_focused);
+      CREATE INDEX IF NOT EXISTS idx_tasks_feature_id ON tasks(feature_id); 
+      CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
     `);
 };
