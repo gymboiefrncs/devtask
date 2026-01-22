@@ -6,7 +6,7 @@ const stmts = {
     "SELECT * from features WHERE project_id = ?",
   ),
   getFeature: db.prepare<[number, number], Feature>(
-    "SELECT * from features WHERE id = ? AND project_id = ?",
+    "SELECT * from features WHERE id = ? AND project_id = ? LIMIT 1",
   ),
   getAllUnfocus: db.prepare<[number], Feature>(
     "SELECT * from features WHERE project_id = ? and  is_focused = 0",
