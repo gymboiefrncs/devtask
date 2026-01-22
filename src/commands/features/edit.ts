@@ -2,8 +2,8 @@ import { updateDescriptionService } from "../../services/features.services.js";
 
 export const editDescription = (featId: string, description: string) => {
   const updateResult = updateDescriptionService(description, featId);
-  if (!updateResult.success) {
-    console.error(updateResult.error.message);
+  if (!updateResult.ok) {
+    console.error(updateResult.err.message);
     process.exitCode = 1;
     return;
   }

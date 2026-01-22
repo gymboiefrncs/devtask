@@ -6,8 +6,8 @@ import { updateProjectStatus } from "../../utils/updateProjectStatus.js";
 
 export const markAsDone = (featId: string) => {
   const markResult = markFeatureAsDoneService(featId);
-  if (!markResult.success) {
-    console.error(markResult.error.message);
+  if (!markResult.ok) {
+    console.error(markResult.err.message);
     process.exitCode = 1;
     return;
   }
@@ -15,8 +15,8 @@ export const markAsDone = (featId: string) => {
   console.log(`feature with id (${featId}) is marked as done`);
 
   const featuresList = listAllFeaturesService();
-  if (!featuresList.success) {
-    console.error(featuresList.error.message);
+  if (!featuresList.ok) {
+    console.error(featuresList.err.message);
     process.exitCode = 1;
     return;
   }

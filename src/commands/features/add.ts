@@ -12,8 +12,8 @@ export const addFeature = async (
     ? addMultipleFeatureService(await addFeatures())
     : addFeatureService(description);
 
-  if (!addResult.success) {
-    console.error(addResult.error.message);
+  if (!addResult.ok) {
+    console.error(addResult.err.message);
     process.exitCode = 1;
     return;
   }

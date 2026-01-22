@@ -26,8 +26,8 @@ export const listFeatures = (featId: string, options: ListOptions): void => {
     ? listFeatureService(featId)
     : listAllFeaturesService();
 
-  if (!listResult.success) {
-    console.error(listResult.error.message);
+  if (!listResult.ok) {
+    console.error(listResult.err.message);
     process.exitCode = 1;
     return;
   }

@@ -16,8 +16,8 @@ export const focusFeature = async (
 ) => {
   if (options.many) {
     const unfocusedList = getUnfocusedFeaturesService();
-    if (!unfocusedList.success) {
-      console.error(unfocusedList.error.message);
+    if (!unfocusedList.ok) {
+      console.error(unfocusedList.err.message);
       process.exitCode = 1;
       return;
     }
@@ -29,8 +29,8 @@ export const focusFeature = async (
     }
 
     const updateResult = focusMultipleFeaturesService(selectedIds);
-    if (!updateResult.success) {
-      console.error(updateResult.error.message);
+    if (!updateResult.ok) {
+      console.error(updateResult.err.message);
       process.exitCode = 1;
       return;
     }
@@ -39,8 +39,8 @@ export const focusFeature = async (
   } else {
     const focusedList = focusFeatureService(featId);
 
-    if (!focusedList.success) {
-      console.error(focusedList.error.message);
+    if (!focusedList.ok) {
+      console.error(focusedList.err.message);
       process.exitCode = 1;
       return;
     }
@@ -50,8 +50,8 @@ export const focusFeature = async (
 
 export const unfocusFeatures = async () => {
   const focusedFeatures = getFocusedFeaturesService();
-  if (!focusedFeatures.success) {
-    console.error(focusedFeatures.error.message);
+  if (!focusedFeatures.ok) {
+    console.error(focusedFeatures.err.message);
     process.exitCode = 1;
     return;
   }
@@ -63,8 +63,8 @@ export const unfocusFeatures = async () => {
   }
 
   const updateResult = unfocusMultipleFeaturesService(ids);
-  if (!updateResult.success) {
-    console.error(updateResult.error.message);
+  if (!updateResult.ok) {
+    console.error(updateResult.err.message);
     process.exitCode = 1;
     return;
   }

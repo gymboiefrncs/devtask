@@ -4,8 +4,8 @@ import { promptDeleteFeature } from "../../utils/prompts.js";
 
 export const removeFeature = async () => {
   const listResult = listAllFeaturesService();
-  if (!listResult.success) {
-    console.error(listResult.error.message);
+  if (!listResult.ok) {
+    console.error(listResult.err.message);
     process.exitCode = 1;
     return;
   }
@@ -18,8 +18,8 @@ export const removeFeature = async () => {
   }
 
   const removeResult = removeFeatureService(selectedids);
-  if (!removeResult.success) {
-    console.error(removeResult.error.message);
+  if (!removeResult.ok) {
+    console.error(removeResult.err.message);
     process.exitCode = 1;
     return;
   }
