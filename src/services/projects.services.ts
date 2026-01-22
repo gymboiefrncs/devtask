@@ -7,7 +7,7 @@ import { ensureValidId } from "../utils/ensureValidId.js";
 // Serive to initialize new project
 export const initializeProjectService = (
   projectName: string,
-): Result<Projects, Error> => {
+): Result<Projects> => {
   const validName: string | Error = validateProjectName(projectName);
   if (validName instanceof Error) return { success: false, error: validName };
 
@@ -33,7 +33,7 @@ export const getProjectsService = (): Result<Projects[], Error> => {
 // Service to switch active project
 export const switchProjectService = (
   projectId: string | number,
-): Result<Projects, Error> => {
+): Result<Projects> => {
   // ensure id is valid
   const validId: number | Error = ensureValidId(projectId);
   if (validId instanceof Error) return { success: false, error: validId };
@@ -61,7 +61,7 @@ export const getCurrentProjectService = (): Result<Projects, Error> => {
 // Service to remove project
 export const removeProjectService = (
   projectId: string,
-): Result<ProjectRunResult, Error> => {
+): Result<ProjectRunResult> => {
   // ensure id is valid
   const validId: number | Error = ensureValidId(projectId);
   if (validId instanceof Error) return { success: false, error: validId };
@@ -92,7 +92,7 @@ export const removeProjectService = (
 export const updateProjectNameService = (
   projectName: string,
   projectId: string,
-): Result<ProjectRunResult, Error> => {
+): Result<ProjectRunResult> => {
   const validId: number | Error = ensureValidId(projectId);
   if (validId instanceof Error) return { success: false, error: validId };
 
