@@ -1,23 +1,18 @@
 import * as queries from "../db/queries/projects.js";
-import {
-  handleError,
-  NotFoundError,
-  ValidationError,
-} from "../utils/handleError.js";
+import { handleError, NotFoundError } from "../utils/handleError.js";
 import type { ProjectRunResult, Projects, Result } from "../types/Projects.js";
-import { validateProjectName } from "../utils/validateProjectName.js";
-import { ensureValidId } from "../utils/ensureValidId.js";
+import { validateName } from "../utils/validateProjectName.js";
+import { validateId } from "../utils/ensureValidId.js";
 import { ConflictError, DatabaseError } from "../utils/handleError.js";
 
 // Serive to initialize new project
 export const initializeProjectService = (
   projectName: string,
 ): Result<Projects> => {
-  const validName: string | ValidationError = validateProjectName(projectName);
-  if (validName instanceof ValidationError)
-    return { ok: false, err: validName };
+  const nameCheck = validateName(projectName);
+  if (!nameCheck.ok) return nameCheck;
 
-  const result = handleError(() => queries.addProject(validName));
+  const result = handleError(() => queries.addProject(nameCheck.data));
   if (!result.ok) {
     if (result.err.message.includes("UNIQUE")) {
       return { ok: false, err: new ConflictError("Project already exist!") };
@@ -43,16 +38,16 @@ export const switchProjectService = (
   projectId: string | number,
 ): Result<Projects> => {
   // ensure id is valid
-  const validId: number | ValidationError = ensureValidId(projectId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(projectId);
+  if (!idCheck.ok) return idCheck;
 
-  const exist = handleError(() => queries.getProject(validId));
+  const exist = handleError(() => queries.getProject(idCheck.data));
   if (!exist.ok)
     return { ok: false, err: new DatabaseError(exist.err.message) };
   if (!exist.data)
     return { ok: false, err: new NotFoundError("Project not found") };
 
-  const result = handleError(() => queries.setActiveProject(validId));
+  const result = handleError(() => queries.setActiveProject(idCheck.data));
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
 
@@ -75,8 +70,8 @@ export const removeProjectService = (
   projectId: string,
 ): Result<ProjectRunResult> => {
   // ensure id is valid
-  const validId: number | ValidationError = ensureValidId(projectId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(projectId);
+  if (!idCheck.ok) return idCheck;
 
   // check if the provided project is active
   // refuse to delete if the provided project is active
@@ -86,13 +81,13 @@ export const removeProjectService = (
       ok: false,
       err: new DatabaseError(isActive.err.message),
     };
-  if (isActive.data?.id === validId)
+  if (isActive.data?.id === idCheck.data)
     return {
       ok: false,
       err: new ConflictError("Cannot delete this active project!"),
     };
 
-  const result = handleError(() => queries.deleteProject(validId));
+  const result = handleError(() => queries.deleteProject(idCheck.data));
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
   if (!result.data.changes)
@@ -106,21 +101,20 @@ export const updateProjectNameService = (
   projectName: string,
   projectId: string,
 ): Result<Projects> => {
-  const validId: number | ValidationError = ensureValidId(projectId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(projectId);
+  if (!idCheck.ok) return idCheck;
 
-  const validName = validateProjectName(projectName);
-  if (validName instanceof ValidationError)
-    return { ok: false, err: validName };
+  const nameCheck = validateName(projectName);
+  if (!nameCheck.ok) return nameCheck;
 
-  const exist = handleError(() => queries.getProject(validId));
+  const exist = handleError(() => queries.getProject(idCheck.data));
   if (!exist.ok)
     return { ok: false, err: new DatabaseError(exist.err.message) };
   if (!exist.data)
     return { ok: false, err: new NotFoundError("Project not found") };
 
   const result = handleError(() =>
-    queries.updateProjectName(validName, validId),
+    queries.updateProjectName(nameCheck.data, idCheck.data),
   );
   if (!result.ok) {
     if (result.err.message.includes("UNIQUE")) {

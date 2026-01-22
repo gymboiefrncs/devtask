@@ -1,9 +1,7 @@
 import type { Result } from "../types/Projects.js";
 import { ValidationError } from "./handleError.js";
 
-export const ensureValidId = (
-  id: string | number,
-): number | ValidationError => {
+const ensureValidId = (id: string | number): number | ValidationError => {
   if (!id) return new ValidationError("Id is required");
   if (typeof id === "number") return id;
 
@@ -13,7 +11,7 @@ export const ensureValidId = (
   return idNum;
 };
 
-export const validateId = (id: string): Result<number> => {
+export const validateId = (id: string | number): Result<number> => {
   const validId = ensureValidId(id);
   if (validId instanceof Error) return { ok: false, err: validId };
   return { ok: true, data: validId };
