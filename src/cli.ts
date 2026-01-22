@@ -17,6 +17,7 @@ import { editProject } from "./commands/projects/edit.js";
 import { db } from "./db/database.js";
 import { editDescription } from "./commands/features/edit.js";
 import { addTasks } from "./commands/tasks/add.js";
+import { listAllTask } from "./commands/tasks/list.js";
 const program = new Command();
 
 // projects commands
@@ -121,6 +122,8 @@ task
   .action(async () => {
     await addTasks();
   });
+
+task.command("list [featId]").description("List all tasks").action(listAllTask);
 
 await program.parseAsync();
 db.close();

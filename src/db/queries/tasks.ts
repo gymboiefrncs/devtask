@@ -1,9 +1,12 @@
-import type { TaskRunResult } from "../../types/Tasks.js";
+import type { Task, TaskRunResult } from "../../types/Tasks.js";
 import { db } from "../database.js";
 
 const stmts = {
   insert: db.prepare<[number, string], TaskRunResult>(
     "INSERT INTO tasks (feature_id, description) VALUES (?, ?)",
+  ),
+  getTasks: db.prepare<[number], Task>(
+    "SELECT * FROM tasks WHERE feature_id = ?",
   ),
 };
 
@@ -20,4 +23,8 @@ const performInsert = db.transaction((featId, descriptions: string[]) => {
 
 export const batchInsert = (featId: number, description: string[]) => {
   return performInsert(featId, description);
+};
+
+export const getAllTasks = (featId: number): Task[] => {
+  return stmts.getTasks.all(featId);
 };
