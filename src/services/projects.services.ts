@@ -14,7 +14,7 @@ export const initializeProjectService = (
   const res = handleError(() => queries.addProject(validName));
   if (!res.success) {
     const message = res.error.message.includes("UNIQUE")
-      ? "Project already exists"
+      ? "Project already exists!"
       : res.error.message;
     return { success: false, error: new Error(message) };
   }
@@ -24,10 +24,10 @@ export const initializeProjectService = (
 
 // Service to list all projects
 export const getProjectsService = (): Result<Projects[], Error> => {
-  const res = handleError(() => queries.getAllProjects());
-  if (!res.success) return { success: false, error: res.error };
+  const result = handleError(() => queries.getAllProjects());
+  if (!result.success) return { success: false, error: result.error };
 
-  return res;
+  return result;
 };
 
 // Service to switch active project
@@ -42,20 +42,20 @@ export const switchProjectService = (
   if (!exist.success || !exist.data)
     return { success: false, error: new Error("Project not found") };
 
-  const res = handleError(() => queries.setActiveProject(validId));
-  if (!res.success) return { success: false, error: res.error };
+  const result = handleError(() => queries.setActiveProject(validId));
+  if (!result.success) return { success: false, error: result.error };
 
-  return res;
+  return result;
 };
 
 // Service to get the current project
 export const getCurrentProjectService = (): Result<Projects, Error> => {
-  const res = handleError(() => queries.getActiveProject());
-  if (!res.success) return { success: false, error: res.error };
-  if (!res.data)
+  const result = handleError(() => queries.getActiveProject());
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data)
     return { success: false, error: new Error("No active project found") };
 
-  return { success: true, data: res.data };
+  return { success: true, data: result.data };
 };
 
 // Service to remove project
@@ -77,15 +77,15 @@ export const removeProjectService = (
   if (isActive.data?.id === validId)
     return {
       success: false,
-      error: new Error("Cannot delete this active project"),
+      error: new Error("Cannot delete this active project!"),
     };
 
-  const res = handleError(() => queries.deleteProject(validId));
-  if (!res.success) return { success: false, error: res.error };
-  if (!res.data.changes)
+  const result = handleError(() => queries.deleteProject(validId));
+  if (!result.success) return { success: false, error: result.error };
+  if (!result.data.changes)
     return { success: false, error: new Error("Project not found") };
 
-  return res;
+  return result;
 };
 
 // Service to update project name
@@ -99,8 +99,10 @@ export const updateProjectNameService = (
   const validName = validateProjectName(projectName);
   if (validName instanceof Error) return { success: false, error: validName };
 
-  const res = handleError(() => queries.updateProjectName(validName, validId));
-  if (!res.success) return { success: false, error: res.error };
+  const result = handleError(() =>
+    queries.updateProjectName(validName, validId),
+  );
+  if (!result.success) return { success: false, error: result.error };
 
-  return res;
+  return result;
 };

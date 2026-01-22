@@ -19,7 +19,7 @@ export const initializeProject = (
     console.log(`Switched to newly created project: ${projectName}`);
 
     if (!switchResult.success) {
-      console.error(switchResult.error);
+      console.error(switchResult.error.message);
       process.exitCode = 1;
       return;
     }
