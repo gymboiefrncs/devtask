@@ -1,3 +1,5 @@
+import type { Result } from "../types/Projects.js";
+
 export const validateFeatureDescription = (desc: string): Error | string => {
   const invalidChar: RegExp = /[^a-zA-Z0-9\s\-_.,?!:;()'"&]/;
   const trimmed = desc ? desc.trim() : "";
@@ -7,4 +9,10 @@ export const validateFeatureDescription = (desc: string): Error | string => {
   if (trimmed.length > 70) return new Error("Description too long");
 
   return trimmed;
+};
+
+export const validateDescription = (desc: string): Result<string> => {
+  const validated = validateFeatureDescription(desc);
+  if (validated instanceof Error) return { ok: false, err: validated };
+  return { ok: true, data: validated };
 };

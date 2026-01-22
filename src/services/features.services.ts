@@ -3,33 +3,26 @@ import {
   DatabaseError,
   handleError,
   NotFoundError,
-  ValidationError,
 } from "../utils/handleError.js";
 import * as queries from "../db/queries/features.js";
 import type { Result } from "../types/Projects.js";
 import type { Feature, FeatureRunResult } from "../types/Features.js";
-import { validateFeatureDescription } from "../utils/validateFeatDescription.js";
-import { ensureValidId } from "../utils/ensureValidId.js";
-import { activeprojectExist } from "../utils/activeProjectExists.js";
+import { validateDescription } from "../utils/validateFeatDescription.js";
+import { validateId } from "../utils/ensureValidId.js";
+import { requireActiveProject } from "../utils/activeProjectExists.js";
 
 // ==============
 // GET SERVICES
 // ==============
 export const listFeatureService = (featId: string): Result<Feature> => {
-  const validId: number | ValidationError = ensureValidId(featId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(featId);
+  if (!idCheck.ok) return idCheck;
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.getFeature(validId, activeProject.data.id),
+    queries.getFeature(idCheck.data, projectCheck.data.id),
   );
 
   if (!result.ok)
@@ -41,17 +34,11 @@ export const listFeatureService = (featId: string): Result<Feature> => {
 };
 
 export const listAllFeaturesService = (): Result<Feature[]> => {
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.getAllFeatures(activeProject.data.id),
+    queries.getAllFeatures(projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
@@ -60,17 +47,11 @@ export const listAllFeaturesService = (): Result<Feature[]> => {
 };
 
 export const getUnfocusedFeaturesService = (): Result<Feature[]> => {
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.getAllUnfocusedFeatures(activeProject.data.id),
+    queries.getAllUnfocusedFeatures(projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
@@ -79,17 +60,11 @@ export const getUnfocusedFeaturesService = (): Result<Feature[]> => {
 };
 
 export const getFocusedFeaturesService = (): Result<Feature[]> => {
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.getAllFocusedFeatures(activeProject.data.id),
+    queries.getAllFocusedFeatures(projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
@@ -103,22 +78,14 @@ export const getFocusedFeaturesService = (): Result<Feature[]> => {
 export const addFeatureService = (
   description: string,
 ): Result<FeatureRunResult> => {
-  const validDescription: Error | string =
-    validateFeatureDescription(description);
-  if (validDescription instanceof Error)
-    return { ok: false, err: validDescription };
+  const descCheck = validateDescription(description);
+  if (!descCheck.ok) return descCheck;
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.insertFeature(validDescription, activeProject.data.id),
+    queries.insertFeature(descCheck.data, projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
@@ -132,27 +99,19 @@ export const addMultipleFeatureService = (
   const sanitized: string[] = [];
 
   for (const raw of description) {
-    const validDescription: ValidationError | string =
-      validateFeatureDescription(raw);
-    if (validDescription instanceof ValidationError)
-      return { ok: false, err: validDescription };
-    sanitized.push(validDescription);
+    const descCheck = validateDescription(raw);
+    if (!descCheck.ok) return descCheck;
+    sanitized.push(descCheck.data);
   }
 
   if (!sanitized.length)
     return { ok: false, err: new ConflictError("No features added") };
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.batchInsert(sanitized, activeProject.data.id),
+    queries.batchInsert(sanitized, projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
@@ -164,25 +123,17 @@ export const addNotesService = (
   notes: string,
   featId: string,
 ): Result<FeatureRunResult> => {
-  const validId: number | ValidationError = ensureValidId(featId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(featId);
+  if (!idCheck.ok) return idCheck;
 
-  const validDescription: ValidationError | string =
-    validateFeatureDescription(notes);
-  if (validDescription instanceof Error)
-    return { ok: false, err: new ConflictError("Note cannot be empty") };
+  const noteCheck = validateDescription(notes);
+  if (!noteCheck.ok) return noteCheck;
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.insertNotes(notes, validId, activeProject.data.id),
+    queries.insertNotes(noteCheck.data, idCheck.data, projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
@@ -201,20 +152,14 @@ export const addNotesService = (
 export const focusFeatureService = (
   featId: string,
 ): Result<FeatureRunResult> => {
-  const validId: number | Error = ensureValidId(featId);
-  if (validId instanceof Error) return { ok: false, err: validId };
+  const idCheck = validateId(featId);
+  if (!idCheck.ok) return idCheck;
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.setFocus(validId, activeProject.data.id),
+    queries.setFocus(idCheck.data, projectCheck.data.id),
   );
 
   if (!result.ok) return { ok: false, err: result.err };
@@ -250,20 +195,14 @@ export const unfocusMultipleFeaturesService = (
 export const markFeatureAsDoneService = (
   featId: string,
 ): Result<FeatureRunResult> => {
-  const validId: number | ValidationError = ensureValidId(featId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(featId);
+  if (!idCheck.ok) return idCheck;
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.setStatusDone(validId, activeProject.data.id),
+    queries.setStatusDone(idCheck.data, projectCheck.data.id),
   );
 
   if (!result.ok) return { ok: false, err: result.err };
@@ -280,25 +219,21 @@ export const updateDescriptionService = (
   description: string,
   featId: string,
 ) => {
-  const validId: number | ValidationError = ensureValidId(featId);
-  if (validId instanceof ValidationError) return { ok: false, err: validId };
+  const idCheck = validateId(featId);
+  if (!idCheck.ok) return idCheck;
 
-  const validDescription: ValidationError | string =
-    validateFeatureDescription(description);
-  if (validDescription instanceof ValidationError)
-    return { ok: false, err: validDescription };
+  const descCheck = validateDescription(description);
+  if (!descCheck.ok) return descCheck;
 
-  const activeProject = activeprojectExist();
-  if (!activeProject.ok)
-    return { ok: false, err: new DatabaseError(activeProject.err.message) };
-  if (!activeProject.data)
-    return {
-      ok: false,
-      err: new NotFoundError("No active project. Please create one first"),
-    };
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.updateDescription(validDescription, validId, activeProject.data.id),
+    queries.updateDescription(
+      descCheck.data,
+      idCheck.data,
+      projectCheck.data.id,
+    ),
   );
 
   if (!result.ok) return { ok: false, err: result.err };
