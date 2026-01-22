@@ -27,7 +27,7 @@ program
   .version("1.0.0");
 
 program
-  .command("init <projectName>")
+  .command("init [projectName]")
   .option("-s, --switch", "Switch to newly initialized project")
   .description("Initialize a project")
   .action(initializeProject);
@@ -38,7 +38,7 @@ program
   .action(listProjects);
 
 program
-  .command("switch <projectId>")
+  .command("switch [projectId]")
   .description("Switch projects")
   .action(switchProject);
 
@@ -48,12 +48,12 @@ program
   .action(getCurrentProject);
 
 program
-  .command("remove <projectId>")
+  .command("remove [projectId]")
   .description("Deletes a project")
   .action(removeProject);
 
 program
-  .command("edit <projectId> <projectName>")
+  .command("edit [projectId] [projectName]")
   .description("Edit project name")
   .action(editProject);
 
