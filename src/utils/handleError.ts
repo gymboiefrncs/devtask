@@ -1,6 +1,6 @@
 import type { Result } from "../types/Projects.js";
 
-export const handleError = <T>(cb: () => T): Result<T> => {
+export const handleError = <T>(cb: () => T): Result<T, Error> => {
   try {
     return { success: true, data: cb() };
   } catch (err) {

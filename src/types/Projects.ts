@@ -5,7 +5,7 @@ export type Projects = {
   created_at: string;
 };
 
-export type Result<T, E = Error> =
+export type Result<T, E> =
   | { success: true; data: T }
   | { success: false; error: E };
 

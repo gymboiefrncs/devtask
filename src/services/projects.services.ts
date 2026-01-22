@@ -8,11 +8,10 @@ import { ensureValidId } from "../utils/ensureValidId.js";
 export const initializeProjectService = (
   projectName: string,
 ): Result<Projects, Error> => {
-  const name = projectName.trim();
-  const error = validateProjectName(name);
-  if (error) return { success: false, error };
+  const validName: string | Error = validateProjectName(projectName);
+  if (validName instanceof Error) return { success: false, error: validName };
 
-  const res = handleError(() => queries.addProject(name));
+  const res = handleError(() => queries.addProject(validName));
   if (!res.success) {
     const message = res.error.message.includes("UNIQUE")
       ? "Project already exists"
@@ -36,14 +35,14 @@ export const switchProjectService = (
   projectId: string | number,
 ): Result<Projects, Error> => {
   // ensure id is valid
-  const idRes = ensureValidId(projectId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
+  const validId: number | Error = ensureValidId(projectId);
+  if (validId instanceof Error) return { success: false, error: validId };
 
-  const exist = handleError(() => queries.getProject(idRes));
+  const exist = handleError(() => queries.getProject(validId));
   if (!exist.success || !exist.data)
     return { success: false, error: new Error("Project not found") };
 
-  const res = handleError(() => queries.setActiveProject(idRes));
+  const res = handleError(() => queries.setActiveProject(validId));
   if (!res.success) return { success: false, error: res.error };
 
   return res;
@@ -64,8 +63,8 @@ export const removeProjectService = (
   projectId: string,
 ): Result<ProjectRunResult, Error> => {
   // ensure id is valid
-  const idRes = ensureValidId(projectId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
+  const validId: number | Error = ensureValidId(projectId);
+  if (validId instanceof Error) return { success: false, error: validId };
 
   // check if the provided project is active
   // refuse to delete if the provided project is active
@@ -75,13 +74,13 @@ export const removeProjectService = (
       success: false,
       error: new Error("Command failed. Please try again"),
     };
-  if (isActive.data?.id === idRes)
+  if (isActive.data?.id === validId)
     return {
       success: false,
       error: new Error("Cannot delete this active project"),
     };
 
-  const res = handleError(() => queries.deleteProject(idRes));
+  const res = handleError(() => queries.deleteProject(validId));
   if (!res.success) return { success: false, error: res.error };
   if (!res.data.changes)
     return { success: false, error: new Error("Project not found") };
@@ -93,15 +92,14 @@ export const removeProjectService = (
 export const updateProjectNameService = (
   projectName: string,
   projectId: string,
-): Result<ProjectRunResult> => {
-  const idRes = ensureValidId(projectId);
-  if (idRes instanceof Error) return { success: false, error: idRes };
+): Result<ProjectRunResult, Error> => {
+  const validId: number | Error = ensureValidId(projectId);
+  if (validId instanceof Error) return { success: false, error: validId };
 
-  const name = projectName.trim();
-  const error = validateProjectName(name);
-  if (error) return { success: false, error };
+  const validName = validateProjectName(projectName);
+  if (validName instanceof Error) return { success: false, error: validName };
 
-  const res = handleError(() => queries.updateProjectName(name, idRes));
+  const res = handleError(() => queries.updateProjectName(validName, validId));
   if (!res.success) return { success: false, error: res.error };
 
   return res;
