@@ -17,14 +17,8 @@ export const listProjects = (): void => {
 
   projects.data.forEach((project) => {
     console.log(
-      `${chalk.yellow(`ID: ${project.id}`)} - ${chalk.blue(project.name)}
-  Status: ${
-    project.status === "active"
-      ? chalk.green(project.status)
-      : chalk.red(project.status)
-  }
-  Created at: ${formatDate(project.created_at)}
-  `,
+      ` - ${chalk.yellow(`ID: ${project.id}`)}: ${chalk.blue(project.name)} • ${project.status === "active" ? chalk.green(project.status) : chalk.red(project.status)}
+   Created at: ${formatDate(project.created_at)}\n${"=".repeat(50)}`,
     );
   });
 };

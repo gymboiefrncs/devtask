@@ -3,7 +3,6 @@ import {
   listFeatureService,
 } from "../../services/features.services.js";
 import chalk from "chalk";
-import { formatDate } from "../../utils/formatDate.js";
 import type { Feature, ListOptions } from "../../types/Features.js";
 
 export const listFeatures = (featId: string, options: ListOptions): void => {
@@ -15,9 +14,7 @@ export const listFeatures = (featId: string, options: ListOptions): void => {
 
   const printFeat = (f: Feature) => {
     const color = statusColors[f.status] || chalk.white;
-    console.log(`${chalk.yellow(`ID: ${f.id}`)} - ${chalk.blue(f.description)}
-    Status: ${color(f.status)}
-    Created at: ${formatDate(f.created_at)}
+    console.log(` - ${chalk.yellow(`ID ${f.id}:`)} ${chalk.blue(f.description)} • ${color(f.status)}
     Focus: ${f.is_focused ? chalk.green("Yes") : "No"}
     Notes: ${f.notes ?? "No notes"}\n${"=".repeat(50)}`);
   };
