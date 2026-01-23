@@ -2,12 +2,15 @@ import {
   ConflictError,
   DatabaseError,
   handleError,
+  NotFoundError,
 } from "../utils/handleError.js";
 import { validateDescription } from "../utils/validateFeatDescription.js";
 import * as queries from "../db/queries/tasks.js";
 import type { Result } from "../types/Projects.js";
 import type { Task, TaskRunResult } from "../types/Tasks.js";
 import { validateId } from "../utils/ensureValidId.js";
+import { requireActiveProject } from "../utils/activeProjectExists.js";
+import { getFocusedFeatures } from "../db/queries/features.js";
 
 export const addTaskService = (
   featId: number,
@@ -39,5 +42,28 @@ export const getAllTasksService = (featId: string): Result<Task[]> => {
   const result = handleError(() => queries.getAllTasks(idCheck.data));
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
+  return result;
+};
+
+export const markAsDoneService = (taskId: string): Result<TaskRunResult> => {
+  const idCheck = validateId(taskId);
+  if (!idCheck.ok) return idCheck;
+
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
+
+  const focused = handleError(() => getFocusedFeatures(projectCheck.data.id));
+  if (!focused.ok)
+    return { ok: false, err: new DatabaseError(focused.err.message) };
+  const data = focused.data;
+  if (!data)
+    return {
+      ok: false,
+      err: new NotFoundError("No focused feature found"),
+    };
+  const result = handleError(() => queries.markAsDone(idCheck.data, data.id));
+  if (!result.ok)
+    return { ok: false, err: new DatabaseError(result.err.message) };
+
   return result;
 };

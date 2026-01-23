@@ -46,17 +46,19 @@ export const listAllFeaturesService = (): Result<Feature[]> => {
   return result;
 };
 
-export const getFocusedFeaturesService = (): Result<Feature[]> => {
+export const getFocusedFeaturesService = (): Result<Feature> => {
   const projectCheck = requireActiveProject();
   if (!projectCheck.ok) return projectCheck;
 
   const result = handleError(() =>
-    queries.getAllFocusedFeatures(projectCheck.data.id),
+    queries.getFocusedFeatures(projectCheck.data.id),
   );
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
+  if (!result.data)
+    return { ok: false, err: new NotFoundError("No focused feature") };
 
-  return result;
+  return { ok: true, data: result.data };
 };
 
 // ================
@@ -139,11 +141,22 @@ export const addNotesService = (
 export const focusFeatureService = (
   featId: string,
 ): Result<FeatureRunResult> => {
-  const idCheck = validateId(featId);
-  if (!idCheck.ok) return idCheck;
-
   const projectCheck = requireActiveProject();
   if (!projectCheck.ok) return projectCheck;
+
+  const focused = handleError(() =>
+    queries.getFocusedFeatures(projectCheck.data.id),
+  );
+  if (!focused.ok)
+    return { ok: false, err: new DatabaseError(focused.err.message) };
+  if (focused.data)
+    return {
+      ok: false,
+      err: new ConflictError("There is already a focused feature"),
+    };
+
+  const idCheck = validateId(featId);
+  if (!idCheck.ok) return idCheck;
 
   const result = handleError(() =>
     queries.setFocus(idCheck.data, projectCheck.data.id),
@@ -159,10 +172,10 @@ export const focusFeatureService = (
   return result;
 };
 
-export const unfocusMultipleFeaturesService = (
-  featIds: number[],
+export const unfocusFeaturesService = (
+  featId: number,
 ): Result<FeatureRunResult> => {
-  const result = handleError(() => queries.setUnfocus(featIds));
+  const result = handleError(() => queries.setUnfocus(featId));
   if (!result.ok)
     return { ok: false, err: new DatabaseError(result.err.message) };
 

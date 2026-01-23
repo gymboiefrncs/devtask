@@ -10,6 +10,7 @@ import { addFeature } from "./commands/features/add.js";
 import { listFeatures } from "./commands/features/list.js";
 import { focusFeature, unfocusFeatures } from "./commands/features/focus.js";
 import { markAsDone } from "./commands/features/done.js";
+import { markTaskAsDone } from "./commands/tasks/done.js";
 import { removeFeature } from "./commands/features/remove.js";
 import { resetDatabase } from "./reset.js";
 import { addNotes } from "./commands/features/notes.js";
@@ -94,7 +95,7 @@ feat
 feat
   .command("unfocus")
   .description("unfocus a feature")
-  .action(async () => await unfocusFeatures());
+  .action(unfocusFeatures);
 
 feat
   .command("done [featId]")
@@ -122,6 +123,11 @@ task
   });
 
 task.command("list [featId]").description("List all tasks").action(listAllTask);
+
+task
+  .command("done [taskId]")
+  .description("Mark task as done")
+  .action(markTaskAsDone);
 
 await program.parseAsync();
 db.close();

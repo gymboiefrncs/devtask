@@ -15,15 +15,6 @@ export const addFeatures = async () => {
   return features;
 };
 
-export const promptUnfocusMultipleFeatures = async (feats: Feature[]) => {
-  if (!feats.length) return;
-  const answer = await checkbox({
-    message: "Select features to unfocus",
-    choices: feats.map((feat) => ({ name: feat.description, value: feat.id })),
-  });
-  return answer;
-};
-
 export const promptDeleteFeature = async (feats: Feature[]) => {
   if (!feats.length) return;
   const answer = await checkbox({

@@ -8,6 +8,9 @@ const stmts = {
   getTasks: db.prepare<[number], Task>(
     "SELECT * FROM tasks WHERE feature_id = ?",
   ),
+  markDone: db.prepare<[number, number], TaskRunResult>(
+    "UPDATE tasks SET status = 'done' WHERE id = ? AND feature_id = ?",
+  ),
 };
 
 const performInsert = db.transaction((featId, descriptions: string[]) => {
@@ -27,4 +30,8 @@ export const batchInsert = (featId: number, description: string[]) => {
 
 export const getAllTasks = (featId: number): Task[] => {
   return stmts.getTasks.all(featId);
+};
+
+export const markAsDone = (taskId: number, featId: number): TaskRunResult => {
+  return stmts.markDone.run(taskId, featId);
 };

@@ -8,7 +8,7 @@ const stmts = {
   getFeature: db.prepare<[number, number], Feature>(
     "SELECT * from features WHERE id = ? AND project_id = ? LIMIT 1",
   ),
-  getAllFocus: db.prepare<[number], Feature>(
+  getFocus: db.prepare<[number], Feature>(
     "SELECT * from features WHERE project_id = ? and  is_focused = 1",
   ),
   insert: db.prepare<[string, number], Feature>(
@@ -23,7 +23,7 @@ const stmts = {
   focus: db.prepare<[number, number], FeatureRunResult>(
     "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ? AND project_id = ?",
   ),
-  unfocus: db.prepare(
+  unfocus: db.prepare<[number], FeatureRunResult>(
     "UPDATE features SET is_focused = 0, status = 'todo' WHERE id = ?",
   ),
   setStatus: db.prepare<[number, number], FeatureRunResult>(
@@ -46,8 +46,8 @@ export const getFeature = (
   projectId: number,
 ): Feature | undefined => stmts.getFeature.get(featId, projectId);
 
-export const getAllFocusedFeatures = (projectId: number): Feature[] =>
-  stmts.getAllFocus.all(projectId);
+export const getFocusedFeatures = (projectId: number): Feature | undefined =>
+  stmts.getFocus.get(projectId);
 
 // ===============
 // INSERT QUERIES
@@ -87,19 +87,8 @@ export const insertNotes = (
 export const setFocus = (featId: number, projectId: number): FeatureRunResult =>
   stmts.focus.run(featId, projectId);
 
-const performUnfocus = db.transaction((ids: number[]) => {
-  let changes = 0;
-  let lastInsertRowid: bigint | number = 0;
-  for (const id of ids) {
-    const result = stmts.unfocus.run(id);
-    changes += result.changes;
-    lastInsertRowid = result.lastInsertRowid;
-  }
-  return { changes, lastInsertRowid };
-});
-
-export const setUnfocus = (featId: number[]): FeatureRunResult =>
-  performUnfocus(featId);
+export const setUnfocus = (featId: number): FeatureRunResult =>
+  stmts.unfocus.run(featId);
 
 export const setStatusDone = (
   featId: number,

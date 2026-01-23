@@ -1,9 +1,8 @@
 import {
   focusFeatureService,
   getFocusedFeaturesService,
-  unfocusMultipleFeaturesService,
+  unfocusFeaturesService,
 } from "../../services/features.services.js";
-import { promptUnfocusMultipleFeatures } from "../../utils/prompts.js";
 
 export const focusFeature = async (featId: string) => {
   const focusedList = focusFeatureService(featId);
@@ -17,24 +16,18 @@ export const focusFeature = async (featId: string) => {
 };
 
 export const unfocusFeatures = async () => {
-  const focusedFeatures = getFocusedFeaturesService();
-  if (!focusedFeatures.ok) {
-    console.error(focusedFeatures.err.message);
+  const focusedFeature = getFocusedFeaturesService();
+  if (!focusedFeature.ok) {
+    console.error(focusedFeature.err.message);
     process.exitCode = 1;
     return;
   }
-  const { data } = focusedFeatures;
-  const ids = await promptUnfocusMultipleFeatures(data);
-  if (!ids) {
-    console.log("No feature left to unfocus");
-    return;
-  }
 
-  const updateResult = unfocusMultipleFeaturesService(ids);
+  const updateResult = unfocusFeaturesService(focusedFeature.data.id);
   if (!updateResult.ok) {
     console.error(updateResult.err.message);
     process.exitCode = 1;
     return;
   }
-  console.log(`Unfocused (${updateResult.data.changes}) features`);
+  console.log(`Feature with id (${focusedFeature.data.id}) is unfocused`);
 };
