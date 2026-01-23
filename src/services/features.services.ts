@@ -46,19 +46,6 @@ export const listAllFeaturesService = (): Result<Feature[]> => {
   return result;
 };
 
-export const getUnfocusedFeaturesService = (): Result<Feature[]> => {
-  const projectCheck = requireActiveProject();
-  if (!projectCheck.ok) return projectCheck;
-
-  const result = handleError(() =>
-    queries.getAllUnfocusedFeatures(projectCheck.data.id),
-  );
-  if (!result.ok)
-    return { ok: false, err: new DatabaseError(result.err.message) };
-
-  return result;
-};
-
 export const getFocusedFeaturesService = (): Result<Feature[]> => {
   const projectCheck = requireActiveProject();
   if (!projectCheck.ok) return projectCheck;
@@ -168,16 +155,6 @@ export const focusFeatureService = (
       ok: false,
       err: new NotFoundError(`No feature found with id ${featId}`),
     };
-
-  return result;
-};
-
-export const focusMultipleFeaturesService = (
-  featIds: number[],
-): Result<FeatureRunResult> => {
-  const result = handleError(() => queries.setMultipleFocus(featIds));
-  if (!result.ok)
-    return { ok: false, err: new DatabaseError(result.err.message) };
 
   return result;
 };

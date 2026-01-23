@@ -8,9 +8,6 @@ const stmts = {
   getFeature: db.prepare<[number, number], Feature>(
     "SELECT * from features WHERE id = ? AND project_id = ? LIMIT 1",
   ),
-  getAllUnfocus: db.prepare<[number], Feature>(
-    "SELECT * from features WHERE project_id = ? and  is_focused = 0",
-  ),
   getAllFocus: db.prepare<[number], Feature>(
     "SELECT * from features WHERE project_id = ? and  is_focused = 1",
   ),
@@ -25,9 +22,6 @@ const stmts = {
   ),
   focus: db.prepare<[number, number], FeatureRunResult>(
     "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ? AND project_id = ?",
-  ),
-  focusMultiple: db.prepare(
-    "UPDATE features SET is_focused = 1, status = 'in_progress' WHERE id = ?",
   ),
   unfocus: db.prepare(
     "UPDATE features SET is_focused = 0, status = 'todo' WHERE id = ?",
@@ -51,9 +45,6 @@ export const getFeature = (
   featId: number,
   projectId: number,
 ): Feature | undefined => stmts.getFeature.get(featId, projectId);
-
-export const getAllUnfocusedFeatures = (projectId: number): Feature[] =>
-  stmts.getAllUnfocus.all(projectId);
 
 export const getAllFocusedFeatures = (projectId: number): Feature[] =>
   stmts.getAllFocus.all(projectId);
@@ -95,20 +86,6 @@ export const insertNotes = (
 // ==============
 export const setFocus = (featId: number, projectId: number): FeatureRunResult =>
   stmts.focus.run(featId, projectId);
-
-const performFocus = db.transaction((ids: number[]) => {
-  let changes = 0;
-  let lastInsertRowid: bigint | number = 0;
-  for (const id of ids) {
-    const result = stmts.focusMultiple.run(id);
-    changes += result.changes;
-    lastInsertRowid = result.lastInsertRowid;
-  }
-  return { changes, lastInsertRowid };
-});
-
-export const setMultipleFocus = (featId: number[]): FeatureRunResult =>
-  performFocus(featId);
 
 const performUnfocus = db.transaction((ids: number[]) => {
   let changes = 0;

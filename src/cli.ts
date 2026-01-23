@@ -89,9 +89,7 @@ feat
   .command("focus [featId]")
   .description("Focus on a feature")
   .option("-m, --many", "Focus multiple feature")
-  .action(async (featId: string, options: { many: boolean }) => {
-    await focusFeature(featId, options);
-  });
+  .action(focusFeature);
 
 feat
   .command("unfocus")
