@@ -20,6 +20,7 @@ import { editDescription } from "./commands/features/edit.js";
 import { addTasks } from "./commands/tasks/add.js";
 import { listAllTask } from "./commands/tasks/list.js";
 import { editTaskDescription } from "./commands/tasks/edit.js";
+import { removeTask } from "./commands/tasks/remove.js";
 const program = new Command();
 
 // projects commands
@@ -134,6 +135,8 @@ task
   .command("edit [taskId] [description]")
   .description("Edit task description")
   .action(editTaskDescription);
+
+task.command("remove [taskId]").description("Remove task").action(removeTask);
 
 await program.parseAsync();
 db.close();

@@ -14,6 +14,9 @@ const stmts = {
   update: db.prepare<[string, number, number], TaskRunResult>(
     "UPDATE tasks SET description = ? WHERE id = ? AND feature_id = ?",
   ),
+  remove: db.prepare<[number, number], TaskRunResult>(
+    "DELETE FROM tasks WHERE id = ? AND feature_id = ?",
+  ),
 };
 
 const performInsert = db.transaction((featId, descriptions: string[]) => {
@@ -43,3 +46,6 @@ export const updateDescription = (
   featId: number,
   desc: string,
 ): TaskRunResult => stmts.update.run(desc, taskId, featId);
+
+export const removeTask = (taskId: number, featId: number) =>
+  stmts.remove.run(taskId, featId);

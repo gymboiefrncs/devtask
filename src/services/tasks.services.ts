@@ -97,3 +97,27 @@ export const updateTaskDescriptionService = (
 
   return result;
 };
+
+export const removeTaskService = (taskId: string) => {
+  const projectCheck = requireActiveProject();
+  const idCheck = validateId(taskId);
+  if (!idCheck.ok) return idCheck;
+
+  if (!projectCheck.ok) return projectCheck;
+
+  const focused = handleError(() => getFocusedFeatures(projectCheck.data.id));
+  if (!focused.ok)
+    return { ok: false, err: new DatabaseError(focused.err.message) };
+  const data = focused.data;
+  if (!data)
+    return {
+      ok: false,
+      err: new NotFoundError("No focused feature found"),
+    };
+
+  const result = handleError(() => queries.removeTask(idCheck.data, data.id));
+
+  if (!result.ok)
+    return { ok: false, err: new DatabaseError(result.err.message) };
+  return result;
+};
