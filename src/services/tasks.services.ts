@@ -67,3 +67,33 @@ export const markAsDoneService = (taskId: string): Result<TaskRunResult> => {
 
   return result;
 };
+
+export const updateTaskDescriptionService = (
+  taskId: string,
+  description: string,
+): Result<TaskRunResult> => {
+  const idCheck = validateId(taskId);
+  if (!idCheck.ok) return idCheck;
+  const descCheck = validateDescription(description);
+  if (!descCheck.ok) return descCheck;
+  const projectCheck = requireActiveProject();
+  if (!projectCheck.ok) return projectCheck;
+
+  const focused = handleError(() => getFocusedFeatures(projectCheck.data.id));
+  if (!focused.ok)
+    return { ok: false, err: new DatabaseError(focused.err.message) };
+  const data = focused.data;
+  if (!data)
+    return {
+      ok: false,
+      err: new NotFoundError("No focused feature found"),
+    };
+  const result = handleError(() =>
+    queries.updateDescription(idCheck.data, data.id, descCheck.data),
+  );
+
+  if (!result.ok)
+    return { ok: false, err: new DatabaseError(result.err.message) };
+
+  return result;
+};

@@ -19,6 +19,7 @@ import { db } from "./db/database.js";
 import { editDescription } from "./commands/features/edit.js";
 import { addTasks } from "./commands/tasks/add.js";
 import { listAllTask } from "./commands/tasks/list.js";
+import { editTaskDescription } from "./commands/tasks/edit.js";
 const program = new Command();
 
 // projects commands
@@ -128,6 +129,11 @@ task
   .command("done [taskId]")
   .description("Mark task as done")
   .action(markTaskAsDone);
+
+task
+  .command("edit [taskId] [description]")
+  .description("Edit task description")
+  .action(editTaskDescription);
 
 await program.parseAsync();
 db.close();
