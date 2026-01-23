@@ -26,7 +26,7 @@ export const initializeSchema = (db: Database) => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         feature_id INTEGER NOT NULL,
         description TEXT NOT NULL,
-        status TEXT CHECK(status IN ('todo', 'in_progress', 'done')) DEFAULT 'todo',
+        status TEXT CHECK(status IN ('todo', 'done')) DEFAULT 'todo',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (feature_id) REFERENCES features(id) ON DELETE CASCADE
       );
